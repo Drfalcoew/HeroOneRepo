@@ -12,11 +12,11 @@
 		347C9E40217072C700469660 /* Actions.sks in Resources */ = {isa = PBXBuildFile; fileRef = 347C9E3F217072C700469660 /* Actions.sks */; };
 		347C9E42217072C700469660 /* GameScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 347C9E41217072C700469660 /* GameScene.swift */; };
 		347C9E44217072C700469660 /* GameViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 347C9E43217072C700469660 /* GameViewController.swift */; };
-		347C9E47217072C700469660 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 347C9E45217072C700469660 /* Main.storyboard */; };
 		347C9E49217072CD00469660 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 347C9E48217072CD00469660 /* Assets.xcassets */; };
 		347C9E4C217072CD00469660 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 347C9E4A217072CD00469660 /* LaunchScreen.storyboard */; };
 		347C9E57217072CD00469660 /* HeroOneTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 347C9E56217072CD00469660 /* HeroOneTests.swift */; };
 		347C9E62217072CD00469660 /* HeroOneUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 347C9E61217072CD00469660 /* HeroOneUITests.swift */; };
+		347C9E712170756400469660 /* MainScreenViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 347C9E702170756400469660 /* MainScreenViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -43,7 +43,6 @@
 		347C9E3F217072C700469660 /* Actions.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = Actions.sks; sourceTree = "<group>"; };
 		347C9E41217072C700469660 /* GameScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameScene.swift; sourceTree = "<group>"; };
 		347C9E43217072C700469660 /* GameViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameViewController.swift; sourceTree = "<group>"; };
-		347C9E46217072C700469660 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		347C9E48217072CD00469660 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		347C9E4B217072CD00469660 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		347C9E4D217072CD00469660 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -53,6 +52,7 @@
 		347C9E5D217072CD00469660 /* HeroOneUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HeroOneUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		347C9E61217072CD00469660 /* HeroOneUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeroOneUITests.swift; sourceTree = "<group>"; };
 		347C9E63217072CD00469660 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		347C9E702170756400469660 /* MainScreenViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainScreenViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -103,12 +103,11 @@
 		347C9E3A217072C700469660 /* HeroOne */ = {
 			isa = PBXGroup;
 			children = (
+				347C9E6F217074A200469660 /* ViewControllers */,
 				347C9E3B217072C700469660 /* AppDelegate.swift */,
 				347C9E3D217072C700469660 /* GameScene.sks */,
 				347C9E3F217072C700469660 /* Actions.sks */,
 				347C9E41217072C700469660 /* GameScene.swift */,
-				347C9E43217072C700469660 /* GameViewController.swift */,
-				347C9E45217072C700469660 /* Main.storyboard */,
 				347C9E48217072CD00469660 /* Assets.xcassets */,
 				347C9E4A217072CD00469660 /* LaunchScreen.storyboard */,
 				347C9E4D217072CD00469660 /* Info.plist */,
@@ -132,6 +131,15 @@
 				347C9E63217072CD00469660 /* Info.plist */,
 			);
 			path = HeroOneUITests;
+			sourceTree = "<group>";
+		};
+		347C9E6F217074A200469660 /* ViewControllers */ = {
+			isa = PBXGroup;
+			children = (
+				347C9E43217072C700469660 /* GameViewController.swift */,
+				347C9E702170756400469660 /* MainScreenViewController.swift */,
+			);
+			path = ViewControllers;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -238,7 +246,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				347C9E47217072C700469660 /* Main.storyboard in Resources */,
 				347C9E3E217072C700469660 /* GameScene.sks in Resources */,
 				347C9E49217072CD00469660 /* Assets.xcassets in Resources */,
 				347C9E4C217072CD00469660 /* LaunchScreen.storyboard in Resources */,
@@ -268,6 +275,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				347C9E42217072C700469660 /* GameScene.swift in Sources */,
+				347C9E712170756400469660 /* MainScreenViewController.swift in Sources */,
 				347C9E44217072C700469660 /* GameViewController.swift in Sources */,
 				347C9E3C217072C700469660 /* AppDelegate.swift in Sources */,
 			);
@@ -305,14 +313,6 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
-		347C9E45217072C700469660 /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				347C9E46217072C700469660 /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
 		347C9E4A217072CD00469660 /* LaunchScreen.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -447,6 +447,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = E7D45YF275;
 				INFOPLIST_FILE = HeroOne/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -465,6 +466,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = E7D45YF275;
 				INFOPLIST_FILE = HeroOne/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
