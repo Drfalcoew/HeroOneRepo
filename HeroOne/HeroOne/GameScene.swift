@@ -19,7 +19,7 @@ class GameScene: SKScene {
     
     var user : SKSpriteNode!
     var floor : SKSpriteNode!
-    
+    var userSize : CGSize = CGSize(width: 55, height: 120)
     
     var leftBtn : SKSpriteNode!
     var rightBtn : SKSpriteNode!
@@ -50,13 +50,13 @@ class GameScene: SKScene {
     }
     
     func SetupPhysicsBodies() {
-        floor?.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: floor.frame.width, height: floor.frame.height - floor.frame.height * 0.26))
+        floor?.physicsBody = SKPhysicsBody(rectangleOf: floor.size)
         floor.physicsBody?.isDynamic = true
         floor.physicsBody?.pinned = true
         floor.physicsBody?.collisionBitMask = 0
         floor.physicsBody?.categoryBitMask = 1
         
-        user.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: user.frame.width, height: user.frame.height))
+        user.physicsBody = SKPhysicsBody(rectangleOf: user.size)
         user.physicsBody?.isDynamic = true
         user.physicsBody?.pinned = false
         user.physicsBody?.allowsRotation = false
@@ -81,15 +81,20 @@ class GameScene: SKScene {
     func updateUser(direction: String) {
         if direction == "left" {
             userLeft = true
-            user.xScale = 1
+            user.texture = SKTexture(imageNamed: "mage")
+            user.size = userSize
             userRight = false
             runUser()
+            print(user.size)
         }
         else if direction == "right" {
             userRight = true
-            user.xScale = -1
+            user.texture = SKTexture(imageNamed: "mageRight")
+            //user.xScale = -1
+            user.size = userSize
             userLeft = false
             runUser()
+            print(user.size)
         }
     }
     
