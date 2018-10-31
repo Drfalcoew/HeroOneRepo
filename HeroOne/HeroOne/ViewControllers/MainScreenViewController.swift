@@ -11,13 +11,30 @@ import UIKit
 class MainScreenViewController: UIViewController {
     
     
-    var button : UIButton = {
+    var warrior : UIButton = {
         let btn = UIButton()
-        btn.backgroundColor = .green
-        btn.layer.cornerRadius = 4
+        btn.backgroundColor = .red
+        btn.layer.cornerRadius = 5
         btn.addTarget(self, action: #selector(StartButton), for: .touchUpInside)
         return btn
     }()
+    
+    var button : UIButton = {
+        let btn = UIButton()
+        btn.backgroundColor = .yellow
+        btn.layer.cornerRadius = 5
+        btn.addTarget(self, action: #selector(StartButton), for: .touchUpInside)
+        return btn
+    }()
+    
+    var archer : UIButton = {
+        let btn = UIButton()
+        btn.backgroundColor = .green
+        btn.layer.cornerRadius = 5
+        btn.addTarget(self, action: #selector(StartButton), for: .touchUpInside)
+        return btn
+    }()
+    
     
     
     

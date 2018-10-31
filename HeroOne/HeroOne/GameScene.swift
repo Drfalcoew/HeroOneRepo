@@ -15,15 +15,11 @@ struct BitMasks {
     
 }
 
-class GameScene: SKScene, SKPhysicsContactDelegate {
+class GameScene: SKScene {
     
     var user : SKSpriteNode!
     var floor : SKSpriteNode!
-    var userSize : CGSize = CGSize(width: 81, height: 140)
     
-    var leftBtn : SKSpriteNode!
-    var rightBtn : SKSpriteNode!
-    var upBtn : SKSpriteNode!
     
     var userLeft : Bool = false
     var userRight : Bool = false
@@ -40,25 +36,25 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     override func didMove(to view: SKView) {
         
-        
-        
         floor = childNode(withName: "floor") as? SKSpriteNode
         user = childNode(withName: "user") as? SKSpriteNode
-        leftBtn = childNode(withName: "left") as? SKSpriteNode
-        rightBtn = childNode(withName: "right") as? SKSpriteNode
-        upBtn = childNode(withName: "up") as? SKSpriteNode
         
-        physicsWorld.gravity = CGVector(dx: 0, dy: -9.8)
-        physicsWorld.contactDelegate = self as! SKPhysicsContactDelegate
+       
         self.view?.isMultipleTouchEnabled = true
         
-        
+        SetupNotifications()
         SetupWeaponType()
         SetupAnimations()
         SetupConstraints()
         SetupPhysicsBodies()
     }
 
+    
+    func SetupNotifications() {
+        NotificationCenter.default.addObserver(self, selector: #selector(GameScene.updateUserLeft), name: NSNotification.Name(rawValue: "0"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(GameScene.updateUserRight), name: NSNotification.Name(rawValue: "1"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(GameScene.stopUser), name: NSNotification.Name("3"), object: nil)
+    }
     
     func SetupWeaponType() {
         let fireballTexture = SKTexture(imageNamed: "1")
@@ -116,28 +112,29 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
      
     }
     
-    func updateUser(direction: String) {
-        if direction == "left" {
-            userLeft = true
-            user.texture = SKTexture(imageNamed: "mage")
-            user.size = userSize
-            userRight = false
-            runUser()
-        }
-        else if direction == "right" {
-            userRight = true
-            user.texture = SKTexture(imageNamed: "mageRight")
-            //user.xScale = -1
-            user.size = userSize
-            userLeft = false
-            runUser()
-        }
+    @objc func stopUser() {
+        userRight = false
+        userLeft = false
+    }
+    
+    @objc func updateUserLeft() {
+        userLeft = true
+        user.texture = SKTexture(imageNamed: "mage")
+        userRight = false
+        runUser()
+    }
+    
+    @objc func updateUserRight() {
+        userRight = true
+        user.texture = SKTexture(imageNamed: "mageRight")
+        //user.xScale = -1
+        userLeft = false
+        runUser()
     }
     
     
     func Fire(dx : CGFloat, dy : CGFloat) {
-        
-        print(dx, dy)
+        print("In Fire Function")
         if dx > 100 || dx < -100 || dy > 100 || dy < -100 {
             if let x = fireball {
                 x.position = user.position
@@ -164,49 +161,28 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         for t in touches { self.touchDown(atPoint: t.location(in: self))
             let position = t.location(in: self)
-            let touchedNode = self.atPoint(position)
-            if let name = touchedNode.name {
-                if name == "right" {
-                    updateUser(direction: "right")
-                } else if name == "left" {
-                    updateUser(direction: "left")
-                } else {
-                    attack = true
-                    attackStart = position
-                }
-            }
+            attackStart = position
         }
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        for t in touches { self.touchMoved(toPoint: t.location(in: self)) }
+        for t in touches { self.touchMoved(toPoint: t.location(in: self))
+            
+        }
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         for t in touches { self.touchUp(atPoint: t.location(in: self))
-            cancelMovements()
-            
-            if attack {
-                let dx = attackStart.x - t.location(in: self).x
-                let dy = attackStart.y - t.location(in: self).y
-                
-            
-                Fire(dx: dx, dy: dy)
-            }
+            let dx = attackStart.x - t.location(in: self).x
+            let dy = attackStart.y - t.location(in: self).y
+            Fire(dx: dx, dy: dy)
         }
     }
     
     override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
         for t in touches { self.touchUp(atPoint: t.location(in: self))
-            cancelMovements()
             
         }
-    }
-    
-    
-    func cancelMovements() {
-        userLeft = false
-        userRight = false
     }
     
     func moveUser() {

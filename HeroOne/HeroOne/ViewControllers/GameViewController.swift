@@ -12,6 +12,30 @@ import GameplayKit
 
 class GameViewController: UIViewController {
 
+    
+    
+    var leftBtn : UIButton = {
+        let btn = UIButton()
+        btn.translatesAutoresizingMaskIntoConstraints = false
+        btn.layer.masksToBounds = true
+        btn.setImage(UIImage(named: "left"), for: .normal)
+        btn.tag = 0
+        btn.addTarget(self, action: #selector(moveCharacter), for: .touchDown)
+        btn.addTarget(self, action: #selector(stopCharacter), for: [.touchUpOutside, .touchUpInside])
+        return btn
+    }()
+
+    var rightBtn : UIButton = {
+        let btn = UIButton()
+        btn.setImage(UIImage(named: "right"), for: .normal)
+        btn.translatesAutoresizingMaskIntoConstraints = false
+        btn.layer.masksToBounds = true
+        btn.tag = 1
+        btn.addTarget(self, action: #selector(moveCharacter), for: .touchDown)
+        btn.addTarget(self, action: #selector(stopCharacter), for: [.touchUpOutside, .touchUpInside])
+        return btn
+    }()
+    
     override func loadView() {
         self.view = SKView()
     }
@@ -29,23 +53,50 @@ class GameViewController: UIViewController {
                 view.presentScene(scene)
             }
             
+            self.view.addSubview(leftBtn)
+            self.view.addSubview(rightBtn)
+            
+            
             view.ignoresSiblingOrder = true
             //view.showsPhysics = true
             view.showsFPS = true
             view.showsNodeCount = true
+            
+            SetupConstraints()
         }
     }
 
+    @objc func moveCharacter(sender: UIButton) {
+        NotificationCenter.default.post(name: NSNotification.Name(rawValue: String(sender.tag)), object: nil)
+    }
+    
+    @objc func stopCharacter(sender: UIButton) {
+        NotificationCenter.default.post(name: NSNotification.Name(rawValue: "3"), object: nil)
+    }
+    
+    func SetupConstraints() {
+        leftBtn.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -20).isActive = true
+        leftBtn.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 25).isActive = true
+        leftBtn.widthAnchor.constraint(equalTo: view.heightAnchor, multiplier: 1/5).isActive = true
+        leftBtn.heightAnchor.constraint(equalTo: leftBtn.widthAnchor, multiplier: 0.845).isActive = true
+        
+        rightBtn.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -20).isActive = true
+        rightBtn.leftAnchor.constraint(equalTo: leftBtn.rightAnchor, constant: 25).isActive = true
+        rightBtn.widthAnchor.constraint(equalTo: view.heightAnchor, multiplier: 1/5).isActive = true
+        rightBtn.heightAnchor.constraint(equalTo: leftBtn.widthAnchor, multiplier: 0.845).isActive = true
+    
+    }
+    
     override var shouldAutorotate: Bool {
-        return true
+        return false
     }
 
     override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
-        if UIDevice.current.userInterfaceIdiom == .phone {
-            return .landscapeRight
-        } else {
-            return .landscapeRight
-        }
+        
+        return .landscape
+//        if UIDevice.current.userInterfaceIdiom == .phone {
+//            return .landscape
+//        }
     }
 
     override var prefersStatusBarHidden: Bool {
