@@ -35,6 +35,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     var userLeft : Bool = false
     var userRight : Bool = false
+    var jump : Bool = false
+    var doubleJump : Bool = false
     
     var attackStart : CGPoint!
     var attack = false
@@ -168,7 +170,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         floor.physicsBody?.allowsRotation = false
         floor.physicsBody?.collisionBitMask = BitMasks.user
         floor.physicsBody?.categoryBitMask = BitMasks.floor
-        floor.physicsBody?.contactTestBitMask = BitMasks.fire
+        floor.physicsBody?.contactTestBitMask = BitMasks.fire | BitMasks.user
+        floor.physicsBody?.restitution = 0.0
         
         user.physicsBody = SKPhysicsBody(rectangleOf: user.size)
         user.physicsBody?.isDynamic = true
@@ -177,6 +180,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         user.physicsBody?.affectedByGravity = true
         user.physicsBody?.collisionBitMask = BitMasks.floor
         user.physicsBody?.categoryBitMask = BitMasks.user
+        user.physicsBody?.contactTestBitMask = BitMasks.floor
+        floor.physicsBody?.restitution = 0.0
         
         fireball.physicsBody = SKPhysicsBody(texture: SKTexture(imageNamed: "1"), size: fireball.size)
         fireball.physicsBody?.isDynamic = true
@@ -186,7 +191,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         fireball.physicsBody?.collisionBitMask = BitMasks.enemy
         fireball.physicsBody?.categoryBitMask = BitMasks.fire
         fireball.physicsBody?.contactTestBitMask = BitMasks.enemy | BitMasks.floor
-        fireball.physicsBody?.density = 2.4
+        fireball.physicsBody?.density = 2.3
         
     }
     func didBegin(_ contact: SKPhysicsContact) {
@@ -212,7 +217,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             b?.run(SKAction.fadeOut(withDuration: 0.1), completion: {
                 b?.removeFromParent()
             })
+        } else if firstBody.categoryBitMask == BitMasks.user && secondBody.categoryBitMask == BitMasks.floor {
             
+            jump = false
+            doubleJump = false
+            print("Jump == false")
             
         }
     }
@@ -252,6 +261,22 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         runUser()
     }
     
+    func Jump() {
+        if !jump {
+            user.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 150))
+            jump = true
+            print("Jump == true")
+        } else if !doubleJump {
+            doubleJump = true
+            if userRight {
+                user.position = CGPoint(x: user.position.x + 80, y: user.position.y + 80)
+            } else {
+                user.position = CGPoint(x: user.position.x - 80, y: user.position.y + 80)
+            }
+            
+        }
+        
+    }
     
     func Fire(dx : CGFloat, dy : CGFloat) {
         
@@ -259,36 +284,33 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         var newY = dy
         let maxPower : CGFloat = 350
         
-        if dx > 100 || dx < -100 || dy > 100 || dy < -100 {
-            if newX > maxPower {
-                newX = maxPower
-            } else if newX < -maxPower {
-                newX = -maxPower
-            }
-            if newY > maxPower {
-                newY = maxPower
-            }
-            if let x = fireball {
-                x.position = user.position
-                tempNode = (x.copy() as! SKSpriteNode)
-                tempNode?.physicsBody?.affectedByGravity = true
-                tempNode?.name = "fireball"
-                self.addChild(tempNode!)
-                tempNode?.run(SKAction.fadeIn(withDuration: 0.25))
-                
-                if dx > 0 {
-                    tempNode.physicsBody?.applyAngularImpulse(dy / -20000)
-                } else {
-                    
-                    tempNode.xScale = -1
-                    tempNode.physicsBody?.applyAngularImpulse(dy / 20000)
-                }
-                tempNode.physicsBody?.applyImpulse(CGVector(dx: newX, dy: newY))
-                tempNode.run(SKAction.repeatForever(SKAction.animate(with: fireballArray, timePerFrame: 0.2)))
-                attack = false
-            }
+        if newX > maxPower {
+            newX = maxPower
+        } else if newX < -maxPower {
+            newX = -maxPower
         }
-        
+        if newY > maxPower {
+            newY = maxPower
+        }
+        if let x = fireball {
+            x.position = user.position
+            tempNode = (x.copy() as! SKSpriteNode)
+            tempNode?.physicsBody?.affectedByGravity = true
+            tempNode?.name = "fireball"
+            self.addChild(tempNode!)
+            tempNode?.run(SKAction.fadeIn(withDuration: 0.25))
+            
+            if dx > 0 {
+                tempNode.physicsBody?.applyAngularImpulse(dy / -20000)
+            } else {
+                
+                tempNode.xScale = -1
+                tempNode.physicsBody?.applyAngularImpulse(dy / 20000)
+            }
+            tempNode.physicsBody?.applyImpulse(CGVector(dx: newX, dy: newY))
+            tempNode.run(SKAction.repeatForever(SKAction.animate(with: fireballArray, timePerFrame: 0.2)))
+            attack = false
+        }
     }
     
     
@@ -324,7 +346,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         for t in touches { self.touchUp(atPoint: t.location(in: self))
             let dx = attackStart.x - t.location(in: self).x
             let dy = attackStart.y - t.location(in: self).y
-            Fire(dx: dx, dy: dy)
+            if dx > 100 || dx < -100 || dy > 100 || dy < -100 {
+                Fire(dx: dx, dy: dy)
+            } else {
+                Jump()
+            }
             //If we made variable to track aimDirection, it would remove the large chance of unnecessary texture overrides
             if userRight == true {
                 updateUserRight()
