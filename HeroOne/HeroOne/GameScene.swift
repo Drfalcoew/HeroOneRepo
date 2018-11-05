@@ -22,6 +22,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     var user : SKSpriteNode!
     var floor : SKSpriteNode!
+    
+    
+    var mtn0 : SKSpriteNode!
+    var mtn1 : SKSpriteNode!
+    var fog : SKSpriteNode!
+    var sky : SKSpriteNode!
+    var sun : SKSpriteNode!
+    
     var one : SKShapeNode!
     var two : SKShapeNode!
     
@@ -43,6 +51,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         floor = childNode(withName: "floor") as? SKSpriteNode
         user = childNode(withName: "user") as? SKSpriteNode
+        mtn0 = childNode(withName: "mountains_1") as? SKSpriteNode
+        mtn1 = childNode(withName: "mountains_0") as? SKSpriteNode
+        sky = childNode(withName: "sky") as? SKSpriteNode
+        sun = childNode(withName: "sun") as? SKSpriteNode
+        fog = childNode(withName: "fog") as? SKSpriteNode
+        
+        
         
         one = SKShapeNode(rectOf: CGSize(width: 50, height: 50))
         two = SKShapeNode(rectOf: CGSize(width: 50, height: 50))
@@ -52,6 +67,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         one.position = CGPoint(x: scene!.frame.width / -4, y: scene!.frame.height / 4)
         two.position = CGPoint(x: scene!.frame.width / 4, y: scene!.frame.height / 4)
+        
+        
+        
         
         self.addChild(one)
         self.addChild(two)
@@ -64,6 +82,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.addChild(cam!)
         camera = cam
         
+        
+        
+        SetupStart()
+        SetupBackground()
         UpdateCamera()
         SetupNotifications()
         SetupWeaponType()
@@ -73,11 +95,30 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
 
     
+    func SetupStart() {
+        let sunTimer = Timer.scheduledTimer(timeInterval: 5.0, target: self, selector: #selector(sunAnimation), userInfo: nil, repeats: false)
+        
+        
+    }
     
+    
+    @objc func sunAnimation() {
+        print("IN SUN ANIMATION FUNC")
+        
+        sun.run(SKAction.move(by: CGVector(dx: 0, dy: (view?.frame.height)! / -4 * 3), duration: 5.0), withKey: "sun")
+    }
+    
+    func SetupBackground() {
+        fog.run(SKAction.repeatForever(SKAction.sequence([SKAction.moveBy(x: 500, y: 0, duration: 5.0), SKAction.moveBy(x: -500, y: 0, duration: 5.0)])), withKey: "fog")
+    }
     
     func UpdateCamera() {
-        
         if ((user.position.x < one.position.x) && (userLeft == true)) {
+            sky?.position.x -= 3.5
+            sun?.position.x -= 3.3
+            mtn0?.position.x -= 3.3
+            mtn1?.position.x -= 3.4
+            fog?.position.x -= 3.4
             cam?.position.x -= 3.5
             one.position.x -= 3.5
             two.position.x -= 3.5
@@ -85,8 +126,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             
         } else if ((user.position.x > two.position.x) && (userRight == true)) {
             cam?.position.x += 3.5
+            sky.position.x += 3.5
+            mtn0?.position.x += 3.3
+            sun?.position.x += 3.3
+            mtn1?.position.x += 3.4
             two.position.x += 3.5
             one.position.x += 3.5
+            fog?.position.x += 3.4
             two.fillColor = .green
             
         } else {
@@ -140,7 +186,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         fireball.physicsBody?.collisionBitMask = BitMasks.enemy
         fireball.physicsBody?.categoryBitMask = BitMasks.fire
         fireball.physicsBody?.contactTestBitMask = BitMasks.enemy | BitMasks.floor
-        fireball.physicsBody?.density = 2.6
+        fireball.physicsBody?.density = 2.4
         
     }
     func didBegin(_ contact: SKPhysicsContact) {
@@ -231,11 +277,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 tempNode?.run(SKAction.fadeIn(withDuration: 0.25))
                 
                 if dx > 0 {
-                    tempNode.physicsBody?.applyAngularImpulse(dy / -25000)
+                    tempNode.physicsBody?.applyAngularImpulse(dy / -20000)
                 } else {
                     
                     tempNode.xScale = -1
-                    tempNode.physicsBody?.applyAngularImpulse(dy / 25000)
+                    tempNode.physicsBody?.applyAngularImpulse(dy / 20000)
                 }
                 tempNode.physicsBody?.applyImpulse(CGVector(dx: newX, dy: newY))
                 tempNode.run(SKAction.repeatForever(SKAction.animate(with: fireballArray, timePerFrame: 0.2)))
