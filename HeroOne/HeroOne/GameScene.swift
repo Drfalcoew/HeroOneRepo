@@ -27,8 +27,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var mtn0 : SKSpriteNode!
     var mtn1 : SKSpriteNode!
     var fog : SKSpriteNode!
+    var fog1 : SKSpriteNode!
     var sky : SKSpriteNode!
     var sun : SKSpriteNode!
+    
     
     var one : SKShapeNode!
     var two : SKShapeNode!
@@ -51,13 +53,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     override func didMove(to view: SKView) {
         
-        floor = childNode(withName: "floor") as? SKSpriteNode
         user = childNode(withName: "user") as? SKSpriteNode
         mtn0 = childNode(withName: "mountains_1") as? SKSpriteNode
         mtn1 = childNode(withName: "mountains_0") as? SKSpriteNode
         sky = childNode(withName: "sky") as? SKSpriteNode
         sun = childNode(withName: "sun") as? SKSpriteNode
         fog = childNode(withName: "fog") as? SKSpriteNode
+        fog1 = childNode(withName: "fog1") as? SKSpriteNode
         
         
         
@@ -73,8 +75,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         
         
-        self.addChild(one)
-        self.addChild(two)
+        //self.addChild(one)
+        //self.addChild(two)
         
         self.physicsWorld.contactDelegate = self
 
@@ -90,16 +92,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         SetupBackground()
         UpdateCamera()
         SetupNotifications()
-        SetupWeaponType()
         SetupAnimations()
         SetupConstraints()
-        SetupPhysicsBodies()
     }
 
     
     func SetupStart() {
         let sunTimer = Timer.scheduledTimer(timeInterval: 5.0, target: self, selector: #selector(sunAnimation), userInfo: nil, repeats: false)
         
+        
+        SetupWeaponType()
+        SetupPhysicsBodies()
+        createGround()
         
     }
     
@@ -111,7 +115,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func SetupBackground() {
-        fog.run(SKAction.repeatForever(SKAction.sequence([SKAction.moveBy(x: 500, y: 0, duration: 5.0), SKAction.moveBy(x: -500, y: 0, duration: 5.0)])), withKey: "fog")
+        moveClouds()
     }
     
     func UpdateCamera() {
@@ -121,6 +125,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             mtn0?.position.x -= 3.3
             mtn1?.position.x -= 3.4
             fog?.position.x -= 3.4
+            fog1?.position.x -= 3.45
             cam?.position.x -= 3.5
             one.position.x -= 3.5
             two.position.x -= 3.5
@@ -135,6 +140,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             two.position.x += 3.5
             one.position.x += 3.5
             fog?.position.x += 3.4
+            fog1?.position.x += 3.45
             two.fillColor = .green
             
         } else {
@@ -165,7 +171,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func SetupPhysicsBodies() {
+        floor = SKSpriteNode(imageNamed: "floor")
         floor.physicsBody?.isDynamic = true
+        floor.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: (self.scene?.size.width)!, height: self.frame.size.height / 3))
         floor.physicsBody?.pinned = true
         floor.physicsBody?.allowsRotation = false
         floor.physicsBody?.collisionBitMask = BitMasks.user
@@ -366,6 +374,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
     
+    
+    
+    func moveClouds() {
+        
+        fog.run(SKAction.repeatForever((SKAction.sequence([SKAction.moveTo(x: -((self.scene?.size.width)!), duration: 20.0), SKAction.fadeOut(withDuration: 3.0), SKAction.run {
+            self.fog.position.x += (self.scene?.size.width)! * 2
+            }]))))
+    
+        fog1.run(SKAction.repeatForever((SKAction.sequence([SKAction.moveTo(x: -((self.scene?.size.width)!), duration: 25.0), SKAction.fadeOut(withDuration: 3.0), SKAction.run {
+            self.fog.position.x += (self.scene?.size.width)! * 2
+            }]))))
+    }
+    
     func moveUser() {
         if userLeft {
             user.position.x -= 3.5
@@ -373,9 +394,27 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             user.position.x -= -3.5
         }
     }
+
+    func createGround() {
+
+        for i in -1...1 {
+            if let x = floor {
+                tempNode = x.copy() as? SKSpriteNode
+                tempNode.name = "floor\(i)"
+                tempNode.zPosition = 10
+                tempNode.size = CGSize(width: (self.scene?.size.width)!, height: self.frame.size.height / 3)
+                tempNode.anchorPoint = CGPoint(x: 0.5, y: 0.5)
+                tempNode.position = CGPoint(x: CGFloat(i) * floor.size.width / 1.55, y: -(self.frame.size.height / 2))
+                self.addChild(tempNode)
+            }
+        }
+        
+    }
+    
     
     override func update(_ currentTime: TimeInterval) {
         // Called before each frame is rendered
+        moveClouds()
         moveUser()
         UpdateCamera()
     }
