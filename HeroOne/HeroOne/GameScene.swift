@@ -80,7 +80,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         self.physicsWorld.contactDelegate = self
 
-        self.view?.isMultipleTouchEnabled = true
+        //self.view?.isMultipleTouchEnabled = true
         
         cam = SKCameraNode()
         self.addChild(cam!)
@@ -111,7 +111,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     @objc func sunAnimation() {
         print("IN SUN ANIMATION FUNC")
         
-        sun.run(SKAction.move(by: CGVector(dx: 0, dy: (view?.frame.height)! / -4 * 3), duration: 5.0), withKey: "sun")
+        sun.run(SKAction.move(by: CGVector(dx: 0, dy: (view?.frame.height)! / -4 * 3), duration: 10.0), withKey: "sun")
     }
     
     func SetupBackground() {
@@ -199,7 +199,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         fireball.physicsBody?.collisionBitMask = BitMasks.enemy
         fireball.physicsBody?.categoryBitMask = BitMasks.fire
         fireball.physicsBody?.contactTestBitMask = BitMasks.enemy | BitMasks.floor
-        fireball.physicsBody?.density = 2.3
+        fireball.physicsBody?.density = 1.7 // make around 2.5 for iphone+ and even higher for ipad!!
         
     }
     func didBegin(_ contact: SKPhysicsContact) {
@@ -309,11 +309,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             tempNode?.run(SKAction.fadeIn(withDuration: 0.25))
             
             if dx > 0 {
-                tempNode.physicsBody?.applyAngularImpulse(dy / -20000)
+                tempNode.physicsBody?.applyAngularImpulse(dy / -25000)
             } else {
                 
                 tempNode.xScale = -1
-                tempNode.physicsBody?.applyAngularImpulse(dy / 20000)
+                tempNode.physicsBody?.applyAngularImpulse(dy / 25000)
             }
             tempNode.physicsBody?.applyImpulse(CGVector(dx: newX, dy: newY))
             tempNode.run(SKAction.repeatForever(SKAction.animate(with: fireballArray, timePerFrame: 0.2)))
@@ -380,10 +380,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         fog.run(SKAction.repeatForever((SKAction.sequence([SKAction.moveTo(x: -((self.scene?.size.width)!), duration: 20.0), SKAction.fadeOut(withDuration: 3.0), SKAction.run {
             self.fog.position.x += (self.scene?.size.width)! * 2
+            SKAction.fadeIn(withDuration: 3.0)
             }]))))
     
         fog1.run(SKAction.repeatForever((SKAction.sequence([SKAction.moveTo(x: -((self.scene?.size.width)!), duration: 25.0), SKAction.fadeOut(withDuration: 3.0), SKAction.run {
             self.fog.position.x += (self.scene?.size.width)! * 2
+            SKAction.fadeIn(withDuration: 3.0)
             }]))))
     }
     
@@ -404,7 +406,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 tempNode.zPosition = 10
                 tempNode.size = CGSize(width: (self.scene?.size.width)!, height: self.frame.size.height / 3)
                 tempNode.anchorPoint = CGPoint(x: 0.5, y: 0.5)
-                tempNode.position = CGPoint(x: CGFloat(i) * floor.size.width / 1.55, y: -(self.frame.size.height / 2))
+                tempNode.position = CGPoint(x: CGFloat(i) * floor.size.width / 1.55, y: -(self.frame.size.height / 3))
                 self.addChild(tempNode)
             }
         }
