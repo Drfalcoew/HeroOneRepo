@@ -8,6 +8,7 @@
 
 import SpriteKit
 import GameplayKit
+import AVFoundation
 
 
 
@@ -22,7 +23,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     var user : SKSpriteNode!
     var floor : SKSpriteNode!
-    
+    var goblin : SKSpriteNode!
     
     var mtn0 : SKSpriteNode!
     var mtn1 : SKSpriteNode!
@@ -51,6 +52,21 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     var cam: SKCameraNode?
     
+    lazy var backgroundMusic : AVAudioPlayer? = {
+        guard let url = Bundle.main.url(forResource: "bgMusic", withExtension: "mp3") else {
+            return nil
+        }
+        do {
+            let player = try AVAudioPlayer(contentsOf: url)
+            player.numberOfLoops = -1
+            return player
+        } catch {
+            return nil
+        }
+    }()
+    
+    
+    
     override func didMove(to view: SKView) {
         
         user = childNode(withName: "user") as? SKSpriteNode
@@ -60,7 +76,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         sun = childNode(withName: "sun") as? SKSpriteNode
         fog = childNode(withName: "fog") as? SKSpriteNode
         fog1 = childNode(withName: "fog1") as? SKSpriteNode
-        
+        goblin = childNode(withName: "goblin") as? SKSpriteNode
         
         
         one = SKShapeNode(rectOf: CGSize(width: 50, height: 50))
@@ -89,6 +105,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         
         SetupStart()
+        SetupEnemies()
         SetupBackground()
         UpdateCamera()
         SetupNotifications()
@@ -96,9 +113,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         SetupConstraints()
     }
 
+    func SetupEnemies() {
+        goblin.run(SKAction.repeatForever(SKAction.sequence([SKAction.moveBy(x: -200, y: 0, duration: 4.0), SKAction.run {
+                self.goblin.texture = SKTexture(imageNamed: "goblinRight")
+            }, SKAction.moveBy(x: 200, y: 0, duration: 4.0), SKAction.run {
+                self.goblin.texture = SKTexture(imageNamed: "goblin")
+            }])))
+        
+        
+    }
     
     func SetupStart() {
         let sunTimer = Timer.scheduledTimer(timeInterval: 5.0, target: self, selector: #selector(sunAnimation), userInfo: nil, repeats: false)
+        backgroundMusic?.play()
         
         
         SetupWeaponType()
@@ -118,31 +145,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         moveClouds()
     }
     
-    func UpdateCamera() {
+    func UpdateCamera() {  //Maybe this is causing lag
         if ((user.position.x < one.position.x) && (userLeft == true)) {
             sky?.position.x -= 3.5
-            sun?.position.x -= 3.3
-            mtn0?.position.x -= 3.3
             mtn1?.position.x -= 3.4
             fog?.position.x -= 3.4
             fog1?.position.x -= 3.45
             cam?.position.x -= 3.5
-            one.position.x -= 3.5
-            two.position.x -= 3.5
-            one.fillColor = .green
             
         } else if ((user.position.x > two.position.x) && (userRight == true)) {
             cam?.position.x += 3.5
             sky.position.x += 3.5
-            mtn0?.position.x += 3.3
-            sun?.position.x += 3.3
-            mtn1?.position.x += 3.4
-            two.position.x += 3.5
-            one.position.x += 3.5
+            mtn1?.position.x += 3.3
             fog?.position.x += 3.4
             fog1?.position.x += 3.45
-            two.fillColor = .green
-            
         } else {
             one.fillColor = .red
             two.fillColor = .red
@@ -171,9 +187,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func SetupPhysicsBodies() {
+        goblin.physicsBody?.allowsRotation = false
+        goblin.physicsBody?.categoryBitMask = BitMasks.enemy
+        goblin.physicsBody?.contactTestBitMask = BitMasks.user
+        
         floor = SKSpriteNode(imageNamed: "floor")
         floor.physicsBody?.isDynamic = true
-        floor.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: (self.scene?.size.width)!, height: self.frame.size.height / 3))
+        floor.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: (self.scene?.size.width)!, height: self.frame.size.height / 3 - floor.frame.size.height * 0.07))
         floor.physicsBody?.pinned = true
         floor.physicsBody?.allowsRotation = false
         floor.physicsBody?.collisionBitMask = BitMasks.user
@@ -189,23 +209,24 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         user.physicsBody?.collisionBitMask = BitMasks.floor
         user.physicsBody?.categoryBitMask = BitMasks.user
         user.physicsBody?.contactTestBitMask = BitMasks.floor
-        floor.physicsBody?.restitution = 0.0
+        user.physicsBody?.restitution = 0.0
         
         fireball.physicsBody = SKPhysicsBody(texture: SKTexture(imageNamed: "1"), size: fireball.size)
         fireball.physicsBody?.isDynamic = true
         fireball.physicsBody?.pinned = false
         fireball.physicsBody?.allowsRotation = true
         fireball.physicsBody?.affectedByGravity = true
-        fireball.physicsBody?.collisionBitMask = BitMasks.enemy
+        fireball.physicsBody?.collisionBitMask = 0
         fireball.physicsBody?.categoryBitMask = BitMasks.fire
         fireball.physicsBody?.contactTestBitMask = BitMasks.enemy | BitMasks.floor
-        fireball.physicsBody?.density = 1.7 // make around 2.5 for iphone+ and even higher for ipad!!
+        fireball.physicsBody?.density = 1.0
+        user.physicsBody?.density = 0.6
         
     }
     func didBegin(_ contact: SKPhysicsContact) {
         var firstBody: SKPhysicsBody
         var secondBody: SKPhysicsBody
-        var a: SKSpriteNode? = nil
+        //var a: SKSpriteNode? = nil
         var b: SKSpriteNode? = nil
         //var x : Int
         
@@ -219,7 +240,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         
         if firstBody.categoryBitMask == BitMasks.floor && secondBody.categoryBitMask == BitMasks.fire {
-            a = firstBody.node as! SKSpriteNode?
+            //a = firstBody.node as! SKSpriteNode?
             b = secondBody.node as! SKSpriteNode?
             
             b?.run(SKAction.fadeOut(withDuration: 0.1), completion: {
@@ -230,6 +251,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             jump = false
             doubleJump = false
             print("Jump == false")
+            
+        } else if firstBody.categoryBitMask == BitMasks.fire && secondBody.categoryBitMask == BitMasks.enemy {
+            b = secondBody.node as! SKSpriteNode
+            b?.removeAllActions()
+            b?.run(SKAction.fadeOut(withDuration: 0.5), completion: {
+                b?.position = CGPoint(x: (self.view?.frame.width)! / 2, y: (self.view?.frame.height)!)
+                b?.physicsBody?.velocity = CGVector(dx: 0, dy: 0)
+                b?.run(SKAction.fadeIn(withDuration: 0.5), completion: {
+                    self.SetupEnemies()
+                })
+            })
             
         }
     }
@@ -290,7 +322,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         var newX = dx
         var newY = dy
-        let maxPower : CGFloat = 350
+        let maxPower : CGFloat = 165
         
         if newX > maxPower {
             newX = maxPower
@@ -309,11 +341,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             tempNode?.run(SKAction.fadeIn(withDuration: 0.25))
             
             if dx > 0 {
-                tempNode.physicsBody?.applyAngularImpulse(dy / -25000)
+                tempNode.physicsBody?.applyAngularImpulse(dy / -18000)
             } else {
                 
                 tempNode.xScale = -1
-                tempNode.physicsBody?.applyAngularImpulse(dy / 25000)
+                tempNode.physicsBody?.applyAngularImpulse(dy / 18000)
             }
             tempNode.physicsBody?.applyImpulse(CGVector(dx: newX, dy: newY))
             tempNode.run(SKAction.repeatForever(SKAction.animate(with: fireballArray, timePerFrame: 0.2)))
@@ -379,12 +411,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func moveClouds() {
         
         fog.run(SKAction.repeatForever((SKAction.sequence([SKAction.moveTo(x: -((self.scene?.size.width)!), duration: 20.0), SKAction.fadeOut(withDuration: 3.0), SKAction.run {
-            self.fog.position.x += (self.scene?.size.width)! * 2
+            self.fog.position.x = self.mtn1.position.x
             SKAction.fadeIn(withDuration: 3.0)
             }]))))
     
         fog1.run(SKAction.repeatForever((SKAction.sequence([SKAction.moveTo(x: -((self.scene?.size.width)!), duration: 25.0), SKAction.fadeOut(withDuration: 3.0), SKAction.run {
-            self.fog.position.x += (self.scene?.size.width)! * 2
+            self.fog.position.x = self.mtn1.position.x
             SKAction.fadeIn(withDuration: 3.0)
             }]))))
     }
@@ -416,7 +448,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     override func update(_ currentTime: TimeInterval) {
         // Called before each frame is rendered
-        moveClouds()
         moveUser()
         UpdateCamera()
     }
