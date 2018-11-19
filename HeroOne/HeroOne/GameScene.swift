@@ -39,7 +39,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var userLeft : Bool = false
     var userRight : Bool = false
     var jump : Bool = false
-    var doubleJump : Bool = false
     
     var attackStart : CGPoint!
     var attack = false
@@ -149,16 +148,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if ((user.position.x < one.position.x) && (userLeft == true)) {
             sky?.position.x -= 3.5
             mtn1?.position.x -= 3.4
-            fog?.position.x -= 3.4
-            fog1?.position.x -= 3.45
             cam?.position.x -= 3.5
+            two.position.x -= 3.5
+            one.position.x -= 3.5
             
         } else if ((user.position.x > two.position.x) && (userRight == true)) {
             cam?.position.x += 3.5
             sky.position.x += 3.5
             mtn1?.position.x += 3.3
-            fog?.position.x += 3.4
-            fog1?.position.x += 3.45
+            two.position.x += 3.5
+            one.position.x += 3.5
+            
         } else {
             one.fillColor = .red
             two.fillColor = .red
@@ -226,7 +226,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func didBegin(_ contact: SKPhysicsContact) {
         var firstBody: SKPhysicsBody
         var secondBody: SKPhysicsBody
-        //var a: SKSpriteNode? = nil
+        var a: SKSpriteNode? = nil
         var b: SKSpriteNode? = nil
         //var x : Int
         
@@ -240,7 +240,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         
         if firstBody.categoryBitMask == BitMasks.floor && secondBody.categoryBitMask == BitMasks.fire {
-            //a = firstBody.node as! SKSpriteNode?
+            a = firstBody.node as! SKSpriteNode?
             b = secondBody.node as! SKSpriteNode?
             
             b?.run(SKAction.fadeOut(withDuration: 0.1), completion: {
@@ -249,8 +249,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         } else if firstBody.categoryBitMask == BitMasks.user && secondBody.categoryBitMask == BitMasks.floor {
             
             jump = false
-            doubleJump = false
-            print("Jump == false")
             
         } else if firstBody.categoryBitMask == BitMasks.fire && secondBody.categoryBitMask == BitMasks.enemy {
             b = secondBody.node as! SKSpriteNode
@@ -302,20 +300,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func Jump() {
-        if !jump {
-            user.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 150))
-            jump = true
-            print("Jump == true")
-        } else if !doubleJump {
-            doubleJump = true
-            if userRight {
-                user.position = CGPoint(x: user.position.x + 80, y: user.position.y + 80)
-            } else {
-                user.position = CGPoint(x: user.position.x - 80, y: user.position.y + 80)
-            }
-            
-        }
-        
+        user.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 150))
+        jump = true
+        print("Jump == true")
     }
     
     func Fire(dx : CGFloat, dy : CGFloat) {
@@ -371,10 +358,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         for t in touches { self.touchMoved(toPoint: t.location(in: self))
             //Flipping user whether aim is facing left or right
             let position = t.location(in: self)
-            if position.x > attackStart.x {
+            if position.x > attackStart.x + 50 {
                 user.texture = SKTexture(imageNamed: "mage")
 
-            } else {
+            } else if position.x < attackStart.x - 50 {
                 user.texture = SKTexture(imageNamed: "mageRight")
 
             }
@@ -389,9 +376,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             if dx > 100 || dx < -100 || dy > 100 || dy < -100 {
                 Fire(dx: dx, dy: dy)
             } else {
-                Jump()
+                if !jump {
+                    Jump()
+                }
             }
-            //If we made variable to track aimDirection, it would remove the large chance of unnecessary texture overrides
             if userRight == true {
                 updateUserRight()
             } else if userLeft == true {
@@ -448,6 +436,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     override func update(_ currentTime: TimeInterval) {
         // Called before each frame is rendered
+        moveClouds()
         moveUser()
         UpdateCamera()
     }
