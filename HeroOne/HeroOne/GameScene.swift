@@ -15,8 +15,8 @@ import AVFoundation
 struct BitMasks {
     static let user : UInt32 = 0x1 << 0
     static let floor : UInt32 = 0x1 << 1
-    static let fire : UInt32 = 0x1 << 2
-    static let enemy : UInt32 = 0x1 << 3
+    static let enemy : UInt32 = 0x1 << 2
+    static let fire : UInt32 = 0x1 << 3
 }
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
@@ -168,9 +168,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func SetupPhysicsBodies() {
+        goblin.physicsBody = SKPhysicsBody(rectangleOf: goblin.size)
+        goblin.physicsBody?.isDynamic = true
         goblin.physicsBody?.allowsRotation = false
         goblin.physicsBody?.categoryBitMask = BitMasks.enemy
         goblin.physicsBody?.contactTestBitMask = BitMasks.user
+        goblin.physicsBody?.collisionBitMask = BitMasks.floor
+        
         
         floor = SKSpriteNode(imageNamed: "floor")
         floor.physicsBody?.isDynamic = true
@@ -193,7 +197,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         user.physicsBody?.restitution = 0.0
         
         fireball.physicsBody = SKPhysicsBody(texture: SKTexture(imageNamed: "1"), size: fireball.size)
-        fireball.physicsBody?.isDynamic = true
+        //fireball.physicsBody?.isDynamic = true
         fireball.physicsBody?.pinned = false
         fireball.physicsBody?.allowsRotation = true
         fireball.physicsBody?.affectedByGravity = true
@@ -221,7 +225,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         
         if firstBody.categoryBitMask == BitMasks.floor && secondBody.categoryBitMask == BitMasks.fire {
-            a = firstBody.node as! SKSpriteNode?
             b = secondBody.node as! SKSpriteNode?
             
             b?.run(SKAction.fadeOut(withDuration: 0.1), completion: {
@@ -231,13 +234,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             
             jump = false
             
-        } else if firstBody.categoryBitMask == BitMasks.fire && secondBody.categoryBitMask == BitMasks.enemy {
+        } else if firstBody.categoryBitMask == BitMasks.enemy && secondBody.categoryBitMask == BitMasks.fire {
+            a = firstBody.node as? SKSpriteNode
             b = secondBody.node as? SKSpriteNode
-            b?.removeAllActions()
-            b?.run(SKAction.fadeOut(withDuration: 0.5), completion: {
-                b?.position = CGPoint(x: (self.view?.frame.width)! / 2, y: (self.view?.frame.height)!)
-                b?.physicsBody?.velocity = CGVector(dx: 0, dy: 0)
-                b?.run(SKAction.fadeIn(withDuration: 0.5), completion: {
+            
+            b?.run(SKAction.fadeOut(withDuration: 0.1), completion: {
+                b?.removeFromParent()
+            })
+            a?.removeAllActions()
+            a?.run(SKAction.fadeOut(withDuration: 0.5), completion: {
+                a?.position = CGPoint(x: (self.view?.frame.width)! / 2, y: (self.view?.frame.height)!)
+                a?.physicsBody?.velocity = CGVector(dx: 0, dy: 0)
+                a?.run(SKAction.fadeIn(withDuration: 0.5), completion: {
                     self.SetupEnemies()
                 })
             })
