@@ -18,7 +18,7 @@ class GameViewController: UIViewController {
         let btn = UIButton()
         btn.translatesAutoresizingMaskIntoConstraints = false
         btn.layer.masksToBounds = true
-        btn.setImage(UIImage(named: "left"), for: .normal)
+        btn.setImage(UIImage(named: "right"), for: .normal)
         btn.tag = 0
         btn.addTarget(self, action: #selector(moveCharacter), for: .touchDown)
         btn.addTarget(self, action: #selector(stopCharacter), for: [.touchUpOutside, .touchUpInside])
@@ -27,7 +27,7 @@ class GameViewController: UIViewController {
 
     var rightBtn : UIButton = {
         let btn = UIButton()
-        btn.setImage(UIImage(named: "right"), for: .normal)
+        btn.setImage(UIImage(named: "left"), for: .normal)
         btn.translatesAutoresizingMaskIntoConstraints = false
         btn.layer.masksToBounds = true
         btn.tag = 1

@@ -47,6 +47,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var fireballAtlas = SKTextureAtlas(named: "Fireball")
     var fireballArray = [SKTexture]()
     
+    var userAtlas = SKTextureAtlas(named: "mageWalk")
+    var userArray = [SKTexture]()
+    
     var tempNode : SKSpriteNode!
     
     var cam: SKCameraNode?
@@ -119,7 +122,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func SetupStart() {
         let _ = Timer.scheduledTimer(timeInterval: 5.0, target: self, selector: #selector(sunAnimation), userInfo: nil, repeats: false)
-        //backgroundMusic?.play()
+        backgroundMusic?.play()
         
         
         SetupWeaponType()
@@ -161,6 +164,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         for i in 1...fireballAtlas.textureNames.count {
             fireballArray.append(SKTexture(imageNamed: "\(i)"))
         }
+        
+        for i in 0...userAtlas.textureNames.count - 1 {
+            let name = "mage_\(i).png"
+            userArray.append(SKTexture(imageNamed: name))
+        }
     }
     
     func SetupConstraints() {
@@ -195,6 +203,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         user.physicsBody?.categoryBitMask = BitMasks.user
         user.physicsBody?.contactTestBitMask = BitMasks.floor
         user.physicsBody?.restitution = 0.0
+        user.physicsBody?.density = 0.6
+
         
         fireball.physicsBody = SKPhysicsBody(texture: SKTexture(imageNamed: "1"), size: fireball.size)
         //fireball.physicsBody?.isDynamic = true
@@ -205,7 +215,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         fireball.physicsBody?.categoryBitMask = BitMasks.fire
         fireball.physicsBody?.contactTestBitMask = BitMasks.enemy | BitMasks.floor
         fireball.physicsBody?.density = 1.0
-        user.physicsBody?.density = 0.6
         
     }
     func didBegin(_ contact: SKPhysicsContact) {
@@ -233,6 +242,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         } else if firstBody.categoryBitMask == BitMasks.user && secondBody.categoryBitMask == BitMasks.floor {
             
             jump = false
+            if userRight {
+                runUser(leftRight: true)
+            } else if userLeft {
+                runUser(leftRight: false)
+            } else {
+                print("Reset texture to normal")
+                user.texture = SKTexture(imageNamed: "mage")
+            }
             
         } else if firstBody.categoryBitMask == BitMasks.enemy && secondBody.categoryBitMask == BitMasks.fire {
             a = firstBody.node as? SKSpriteNode
@@ -269,29 +286,36 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     @objc func stopUser() {
+        user.removeAllActions()
         userRight = false
         userLeft = false
     }
     
     @objc func updateUserLeft() {
         userLeft = true
-        user.texture = SKTexture(imageNamed: "mage")
+        //user.texture = SKTexture(imageNamed: "mage")
+        user.xScale = abs(user.xScale) * 1.0
         userRight = false
-        runUser()
+        if !jump {
+            runUser(leftRight: false)
+        }
     }
     
     @objc func updateUserRight() {
         userRight = true
-        user.texture = SKTexture(imageNamed: "mageRight")
-        //user.xScale = -1
+        //user.texture = SKTexture(imageNamed: "mageRight")
+        user.xScale = abs(user.xScale) * -1.0
         userLeft = false
-        runUser()
+        if !jump {
+            runUser(leftRight: true)
+        }
     }
     
     func Jump() {
         user.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 150))
+        user.removeAllActions()
+        user.texture = SKTexture(imageNamed: "mageJump")
         jump = true
-        print("Jump == true")
     }
     
     func Fire(dx : CGFloat, dy : CGFloat) {
@@ -317,11 +341,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             tempNode?.run(SKAction.fadeIn(withDuration: 0.25))
             
             if dx > 0 {
-                tempNode.physicsBody?.applyAngularImpulse(dy / -18000)
+                tempNode.physicsBody?.applyAngularImpulse(dy / -20000)
             } else {
                 
                 tempNode.xScale = -1
-                tempNode.physicsBody?.applyAngularImpulse(dy / 18000)
+                tempNode.physicsBody?.applyAngularImpulse(dy / 20000)
             }
             tempNode.physicsBody?.applyImpulse(CGVector(dx: newX, dy: newY))
             tempNode.run(SKAction.repeatForever(SKAction.animate(with: fireballArray, timePerFrame: 0.2)))
@@ -330,8 +354,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     
-    func runUser() {
+    func runUser(leftRight : Bool) {
         //setup walkAnimation here
+        if leftRight {
+            user.xScale = abs(user.xScale) * -1.0
+        } else {
+            user.xScale = abs(user.xScale) * 1.0
+        }
+        user.run(SKAction.repeatForever(SKAction.animate(with: userArray, timePerFrame: 0.2)), withKey: "userRun")
     }
     
     
@@ -386,7 +416,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     
     func moveClouds() {
-        print(fog.position.y, fog1.position.y)
         
         
         fog.run(SKAction.repeatForever((SKAction.sequence([SKAction.fadeOut(withDuration: 16.0), SKAction.fadeIn(withDuration: 18.0)]))))
