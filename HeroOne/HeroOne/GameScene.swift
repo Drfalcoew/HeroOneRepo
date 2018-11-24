@@ -33,8 +33,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var sun : SKSpriteNode!
     
     
-    var one : SKShapeNode!
-    var two : SKShapeNode!
+    var one : SKSpriteNode!
+    var two : SKSpriteNode!
     
     var userLeft : Bool = false
     var userRight : Bool = false
@@ -78,20 +78,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         goblin = childNode(withName: "goblin") as? SKSpriteNode
         
         
-        one = SKShapeNode(rectOf: CGSize(width: 50, height: 50))
-        two = SKShapeNode(rectOf: CGSize(width: 50, height: 50))
-        
-        one.fillColor = .red
-        two.fillColor = .red
+        one = SKSpriteNode(color: .red, size: CGSize(width: 50, height: 50))
+        two = SKSpriteNode(color: .red, size: CGSize(width: 50, height: 50))
+
         
         one.position = CGPoint(x: scene!.frame.width / -4, y: scene!.frame.height / 4)
         two.position = CGPoint(x: scene!.frame.width / 4, y: scene!.frame.height / 4)
         
-        
-        
-        
-        //self.addChild(one)
-        //self.addChild(two)
         
         self.physicsWorld.contactDelegate = self
 
@@ -101,12 +94,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.addChild(cam!)
         camera = cam
         
+        //self.addChild(one)
+        //self.addChild(two)
+        
         
         
         SetupStart()
         SetupEnemies()
         SetupBackground()
-        UpdateCamera()
         SetupNotifications()
         SetupAnimations()
         SetupConstraints()
@@ -123,8 +118,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func SetupStart() {
-        let sunTimer = Timer.scheduledTimer(timeInterval: 5.0, target: self, selector: #selector(sunAnimation), userInfo: nil, repeats: false)
-        backgroundMusic?.play()
+        let _ = Timer.scheduledTimer(timeInterval: 5.0, target: self, selector: #selector(sunAnimation), userInfo: nil, repeats: false)
+        //backgroundMusic?.play()
         
         
         SetupWeaponType()
@@ -138,32 +133,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         print("IN SUN ANIMATION FUNC")
         
         sun.run(SKAction.move(by: CGVector(dx: 0, dy: (view?.frame.height)! / -4 * 3), duration: 10.0), withKey: "sun")
+        sun.run(SKAction.move(by: CGVector(dx: 0, dy: -200), duration: 10.0)) {
+            self.sun.run(SKAction.fadeOut(withDuration: 5.0), completion: {
+                self.sun.removeFromParent()
+            })
+        }
     }
     
     func SetupBackground() {
         moveClouds()
     }
     
-    func UpdateCamera() {  //Maybe this is causing lag
-        if ((user.position.x < one.position.x) && (userLeft == true)) {
-            sky?.position.x -= 3.5
-            mtn1?.position.x -= 3.4
-            cam?.position.x -= 3.5
-            two.position.x -= 3.5
-            one.position.x -= 3.5
-            
-        } else if ((user.position.x > two.position.x) && (userRight == true)) {
-            cam?.position.x += 3.5
-            sky.position.x += 3.5
-            mtn1?.position.x += 3.3
-            two.position.x += 3.5
-            one.position.x += 3.5
-            
-        } else {
-            one.fillColor = .red
-            two.fillColor = .red
-        }
-    }
+    
     
     func SetupNotifications() {
         NotificationCenter.default.addObserver(self, selector: #selector(GameScene.updateUserLeft), name: NSNotification.Name(rawValue: "0"), object: nil)
@@ -251,7 +232,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             jump = false
             
         } else if firstBody.categoryBitMask == BitMasks.fire && secondBody.categoryBitMask == BitMasks.enemy {
-            b = secondBody.node as! SKSpriteNode
+            b = secondBody.node as? SKSpriteNode
             b?.removeAllActions()
             b?.run(SKAction.fadeOut(withDuration: 0.5), completion: {
                 b?.position = CGPoint(x: (self.view?.frame.width)! / 2, y: (self.view?.frame.height)!)
@@ -397,18 +378,43 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     
     func moveClouds() {
+        print(fog.position.y, fog1.position.y)
         
-        fog.run(SKAction.repeatForever((SKAction.sequence([SKAction.moveTo(x: -((self.scene?.size.width)!), duration: 20.0), SKAction.fadeOut(withDuration: 3.0), SKAction.run {
-            self.fog.position.x = self.mtn1.position.x
-            SKAction.fadeIn(withDuration: 3.0)
-            }]))))
-    
-        fog1.run(SKAction.repeatForever((SKAction.sequence([SKAction.moveTo(x: -((self.scene?.size.width)!), duration: 25.0), SKAction.fadeOut(withDuration: 3.0), SKAction.run {
-            self.fog.position.x = self.mtn1.position.x
-            SKAction.fadeIn(withDuration: 3.0)
-            }]))))
+        
+        fog.run(SKAction.repeatForever((SKAction.sequence([SKAction.fadeOut(withDuration: 16.0), SKAction.fadeIn(withDuration: 18.0)]))))
+        fog.run(SKAction.repeatForever((SKAction.sequence([SKAction.moveBy(x: -scene!.frame.size.width, y: 0, duration: 35), SKAction.run({
+            self.fog.position.x = 0.0
+        })]))))
+       
+        fog1.run(SKAction.repeatForever((SKAction.sequence([SKAction.fadeOut(withDuration: 13.0), SKAction.fadeIn(withDuration: 17.0)]))))
+        fog1.run(SKAction.repeatForever((SKAction.sequence([SKAction.moveBy(x: -scene!.frame.size.width, y: 0, duration: 24), SKAction.run({
+            self.fog.position.x = 0.0
+        })]))))
+
     }
     
+    func UpdateCamera() {
+        if ((user.position.x < one.position.x) && (userLeft == true)) {
+            //sky?.position.x -= 3.5
+            //mtn1?.position.x -= 3.3
+            cam?.position.x -= 3.5
+            one.position.x -= 3.5
+            two.position.x -= 3.5
+            //one.color = .green
+        } else if ((user.position.x > two.position.x) && (userRight == true)) {
+            //sky.position.x += 3.5
+            //mtn1?.position.x += 3.3
+            cam?.position.x += 3.5
+            one.position.x += 3.5
+            two.position.x += 3.5
+            //two.color = .green
+        } // else if one.color == .green || two.color == .green {
+//            one.color = .red
+//            two.color = .red
+//        }
+    }
+    
+
     func moveUser() {
         if userLeft {
             user.position.x -= 3.5
@@ -436,7 +442,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     override func update(_ currentTime: TimeInterval) {
         // Called before each frame is rendered
-        moveClouds()
         moveUser()
         UpdateCamera()
     }
