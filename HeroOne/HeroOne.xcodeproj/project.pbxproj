@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		343EBF4F219E9DF300A56FD7 /* bgMusic.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 343EBF4E219E9DF300A56FD7 /* bgMusic.mp3 */; };
 		347C9E3C217072C700469660 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 347C9E3B217072C700469660 /* AppDelegate.swift */; };
 		347C9E3E217072C700469660 /* GameScene.sks in Resources */ = {isa = PBXBuildFile; fileRef = 347C9E3D217072C700469660 /* GameScene.sks */; };
 		347C9E40217072C700469660 /* Actions.sks in Resources */ = {isa = PBXBuildFile; fileRef = 347C9E3F217072C700469660 /* Actions.sks */; };
@@ -18,6 +17,7 @@
 		347C9E57217072CD00469660 /* HeroOneTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 347C9E56217072CD00469660 /* HeroOneTests.swift */; };
 		347C9E62217072CD00469660 /* HeroOneUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 347C9E61217072CD00469660 /* HeroOneUITests.swift */; };
 		347C9E712170756400469660 /* MainScreenViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 347C9E702170756400469660 /* MainScreenViewController.swift */; };
+		4CBEAA1D27DB052000623680 /* bgMusic.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 4CBEAA1C27DB052000623680 /* bgMusic.mp3 */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -38,7 +38,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		343EBF4E219E9DF300A56FD7 /* bgMusic.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; name = bgMusic.mp3; path = "../../../../../Project Files/bgMusic.mp3"; sourceTree = "<group>"; };
 		347C9E38217072C700469660 /* HeroOne.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HeroOne.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		347C9E3B217072C700469660 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		347C9E3D217072C700469660 /* GameScene.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = GameScene.sks; sourceTree = "<group>"; };
@@ -55,6 +54,7 @@
 		347C9E61217072CD00469660 /* HeroOneUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeroOneUITests.swift; sourceTree = "<group>"; };
 		347C9E63217072CD00469660 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		347C9E702170756400469660 /* MainScreenViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainScreenViewController.swift; sourceTree = "<group>"; };
+		4CBEAA1C27DB052000623680 /* bgMusic.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; name = bgMusic.mp3; path = "../../../../../../../Music/Music/Media/Music/Unknown Artist/Unknown Album/bgMusic.mp3"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -85,7 +85,7 @@
 		343EBF49219E8ABE00A56FD7 /* Music */ = {
 			isa = PBXGroup;
 			children = (
-				343EBF4E219E9DF300A56FD7 /* bgMusic.mp3 */,
+				4CBEAA1C27DB052000623680 /* bgMusic.mp3 */,
 			);
 			path = Music;
 			sourceTree = "<group>";
@@ -259,9 +259,9 @@
 			files = (
 				347C9E3E217072C700469660 /* GameScene.sks in Resources */,
 				347C9E49217072CD00469660 /* Assets.xcassets in Resources */,
-				343EBF4F219E9DF300A56FD7 /* bgMusic.mp3 in Resources */,
 				347C9E4C217072CD00469660 /* LaunchScreen.storyboard in Resources */,
 				347C9E40217072C700469660 /* Actions.sks in Resources */,
+				4CBEAA1D27DB052000623680 /* bgMusic.mp3 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
