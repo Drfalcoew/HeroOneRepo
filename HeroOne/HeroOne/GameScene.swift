@@ -61,8 +61,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         do {
             let player = try AVAudioPlayer(contentsOf: url)
             player.numberOfLoops = -1
+            print("Playing song")
             return player
         } catch {
+            print("Error")
             return nil
         }
     }()
@@ -85,8 +87,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         two = SKSpriteNode(color: .red, size: CGSize(width: 50, height: 50))
 
         
-        one.position = CGPoint(x: scene!.frame.width / -4, y: scene!.frame.height / 4)
-        two.position = CGPoint(x: scene!.frame.width / 4, y: scene!.frame.height / 4)
+        one.position = CGPoint(x: scene!.frame.width / -5.5, y: scene!.frame.height / 4)
+        two.position = CGPoint(x: scene!.frame.width / 5.5, y: scene!.frame.height / 4)
         
         
         self.physicsWorld.contactDelegate = self
@@ -97,8 +99,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.addChild(cam!)
         camera = cam
         
-        //self.addChild(one)
-        //self.addChild(two)
+        self.addChild(one)
+        self.addChild(two)
         
         
         
@@ -157,7 +159,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func SetupWeaponType() {
         let fireballTexture = SKTexture(imageNamed: "1")
-        fireball = SKSpriteNode(texture: fireballTexture, size: CGSize(width: user.size.height, height: user.size.height * 0.54))
+        fireball = SKSpriteNode(texture: fireballTexture, size: CGSize(width: user.size.height / 2, height: user.size.height * 0.27))
     }
     
     func SetupAnimations() {
@@ -210,7 +212,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         //fireball.physicsBody?.isDynamic = true
         fireball.physicsBody?.pinned = false
         fireball.physicsBody?.allowsRotation = true
-        fireball.physicsBody?.affectedByGravity = true
+        fireball.physicsBody?.affectedByGravity = false
         fireball.physicsBody?.collisionBitMask = 0
         fireball.physicsBody?.categoryBitMask = BitMasks.fire
         fireball.physicsBody?.contactTestBitMask = BitMasks.enemy | BitMasks.floor
@@ -322,7 +324,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         var newX = dx
         var newY = dy
-        let maxPower : CGFloat = 165
+        let maxPower : CGFloat = 50
         
         if newX > maxPower {
             newX = maxPower
@@ -335,7 +337,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if let x = fireball {
             x.position = user.position
             tempNode = (x.copy() as! SKSpriteNode)
-            tempNode?.physicsBody?.affectedByGravity = true
+            tempNode?.physicsBody?.affectedByGravity = false
             tempNode?.name = "fireball"
             self.addChild(tempNode!)
             tempNode?.run(SKAction.fadeIn(withDuration: 0.25))
@@ -343,7 +345,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             if dx > 0 {
                 tempNode.physicsBody?.applyAngularImpulse(dy / -20000)
             } else {
-                
                 tempNode.xScale = -1
                 tempNode.physicsBody?.applyAngularImpulse(dy / 20000)
             }
@@ -437,18 +438,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             cam?.position.x -= 3.5
             one.position.x -= 3.5
             two.position.x -= 3.5
-            //one.color = .green
+            one.color = .green
         } else if ((user.position.x > two.position.x) && (userRight == true)) {
             //sky.position.x += 3.5
             //mtn1?.position.x += 3.3
             cam?.position.x += 3.5
             one.position.x += 3.5
             two.position.x += 3.5
-            //two.color = .green
-        } // else if one.color == .green || two.color == .green {
-//            one.color = .red
-//            two.color = .red
-//        }
+            two.color = .green
+        } else if one.color == .green || two.color == .green {
+            one.color = .red
+            two.color = .red
+        }
     }
     
 
