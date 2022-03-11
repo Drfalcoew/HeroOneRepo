@@ -350,6 +350,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             }
             tempNode.physicsBody?.applyImpulse(CGVector(dx: newX, dy: newY))
             tempNode.run(SKAction.repeatForever(SKAction.animate(with: fireballArray, timePerFrame: 0.2)))
+            tempNode.run(SKAction.fadeOut(withDuration: 2.5), completion: {
+                self.tempNode.removeFromParent()
+            })
             attack = false
         }
     }
