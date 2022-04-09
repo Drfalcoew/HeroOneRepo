@@ -21,7 +21,7 @@ class MainScreenViewController: UIViewController {
     
     var button : UIButton = {
         let btn = UIButton()
-        btn.backgroundColor = .yellow
+        btn.backgroundColor = .blue
         btn.layer.cornerRadius = 5
         btn.addTarget(self, action: #selector(StartButton), for: .touchUpInside)
         return btn

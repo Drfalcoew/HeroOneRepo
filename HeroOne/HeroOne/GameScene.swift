@@ -11,7 +11,6 @@ import GameplayKit
 import AVFoundation
 
 
-
 struct BitMasks {
     static let user : UInt32 = 0x1 << 0
     static let floor : UInt32 = 0x1 << 1
@@ -44,8 +43,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var attack = false
     
     var fireball : SKSpriteNode!
-    var fireballAtlas = SKTextureAtlas(named: "Fireball")
-    var fireballArray = [SKTexture]()
+    //var fireballAtlas = SKTextureAtlas(named: "Fireball")
+    //var fireballArray = [SKTexture]()
     
     var userAtlas = SKTextureAtlas(named: "mageWalk")
     var userArray = [SKTexture]()
@@ -53,6 +52,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var tempNode : SKSpriteNode!
     
     var cam: SKCameraNode?
+    var facingLeft: Bool?
+    var facingRight: Bool?
+
     
     lazy var backgroundMusic : AVAudioPlayer? = {
         guard let url = Bundle.main.url(forResource: "bgMusic", withExtension: "mp3") else {
@@ -83,8 +85,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         goblin = childNode(withName: "goblin") as? SKSpriteNode
         
         
-        one = SKSpriteNode(color: .red, size: CGSize(width: 50, height: 50))
-        two = SKSpriteNode(color: .red, size: CGSize(width: 50, height: 50))
+        one = SKSpriteNode(color: .clear, size: CGSize(width: 50, height: 50))
+        two = SKSpriteNode(color: .clear, size: CGSize(width: 50, height: 50))
 
         
         one.position = CGPoint(x: scene!.frame.width / -5.5, y: scene!.frame.height / 4)
@@ -158,14 +160,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func SetupWeaponType() {
-        let fireballTexture = SKTexture(imageNamed: "1")
-        fireball = SKSpriteNode(texture: fireballTexture, size: CGSize(width: user.size.height / 2, height: user.size.height * 0.27))
+        let fireballTexture = SKTexture(imageNamed: "fireball")
+        fireball = SKSpriteNode(texture: fireballTexture, size: CGSize(width: user.size.height * 0.45, height: user.size.height * 0.45))
     }
     
     func SetupAnimations() {
-        for i in 1...fireballAtlas.textureNames.count {
+        /*for i in 1...fireballAtlas.textureNames.count {
             fireballArray.append(SKTexture(imageNamed: "\(i)"))
-        }
+        }*/
         
         for i in 0...userAtlas.textureNames.count - 1 {
             let name = "mage_\(i).png"
@@ -208,7 +210,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         user.physicsBody?.density = 0.6
 
         
-        fireball.physicsBody = SKPhysicsBody(texture: SKTexture(imageNamed: "1"), size: fireball.size)
+        fireball.physicsBody = SKPhysicsBody(texture: SKTexture(imageNamed: "fireball"), size: fireball.size)
         //fireball.physicsBody?.isDynamic = true
         fireball.physicsBody?.pinned = false
         fireball.physicsBody?.allowsRotation = true
@@ -289,25 +291,32 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     @objc func stopUser() {
         user.removeAllActions()
+        
         userRight = false
         userLeft = false
     }
     
     @objc func updateUserLeft() {
+        print("Updating user Left")
         userLeft = true
+        facingLeft = true
         //user.texture = SKTexture(imageNamed: "mage")
         user.xScale = abs(user.xScale) * 1.0
         userRight = false
+        facingRight = false
         if !jump {
             runUser(leftRight: false)
         }
     }
     
     @objc func updateUserRight() {
+        print("Updating user Right")
         userRight = true
+        facingRight = true
         //user.texture = SKTexture(imageNamed: "mageRight")
         user.xScale = abs(user.xScale) * -1.0
         userLeft = false
+        facingLeft = false
         if !jump {
             runUser(leftRight: true)
         }
@@ -324,42 +333,40 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         var newX = dx
         var newY = dy
-        let maxPower : CGFloat = 50
-        
+        let maxPower : CGFloat = 100
+
         if newX > maxPower {
-            newX = maxPower
+           newX = maxPower
         } else if newX < -maxPower {
-            newX = -maxPower
+           newX = -maxPower
         }
         if newY > maxPower {
-            newY = maxPower
+           newY = maxPower
         }
         if let x = fireball {
-            x.position = user.position
-            tempNode = (x.copy() as! SKSpriteNode)
-            tempNode?.physicsBody?.affectedByGravity = false
-            tempNode?.name = "fireball"
-            self.addChild(tempNode!)
-            tempNode?.run(SKAction.fadeIn(withDuration: 0.25))
-            
-            if dx > 0 {
-                tempNode.physicsBody?.applyAngularImpulse(dy / -20000)
-            } else {
-                tempNode.xScale = -1
-                tempNode.physicsBody?.applyAngularImpulse(dy / 20000)
-            }
-            tempNode.physicsBody?.applyImpulse(CGVector(dx: newX, dy: newY))
-            tempNode.run(SKAction.repeatForever(SKAction.animate(with: fireballArray, timePerFrame: 0.2)))
-            tempNode.run(SKAction.fadeOut(withDuration: 2.5), completion: {
-                self.tempNode.removeFromParent()
-            })
-            attack = false
+           x.position = user.position
+           tempNode = (x.copy() as! SKSpriteNode)
+           tempNode?.physicsBody?.affectedByGravity = true
+           tempNode?.name = "fireball"
+           self.addChild(tempNode!)
+           tempNode?.run(SKAction.fadeIn(withDuration: 0.25))
+           
+           if dx > 0 {
+               tempNode.physicsBody?.applyAngularImpulse(dy / -20000)
+           } else {
+               
+               tempNode.xScale = -1
+               tempNode.physicsBody?.applyAngularImpulse(dy / 20000)
+           }
+           tempNode.physicsBody?.applyImpulse(CGVector(dx: newX, dy: newY))
+           attack = false
         }
     }
     
     
     func runUser(leftRight : Bool) {
         //setup walkAnimation here
+     
         if leftRight {
             user.xScale = abs(user.xScale) * -1.0
         } else {
@@ -381,12 +388,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         for t in touches { self.touchMoved(toPoint: t.location(in: self))
             //Flipping user whether aim is facing left or right
             let position = t.location(in: self)
-            if position.x > attackStart.x + 50 {
-                user.texture = SKTexture(imageNamed: "mage")
-
-            } else if position.x < attackStart.x - 50 {
-                user.texture = SKTexture(imageNamed: "mageRight")
-
+            if position.x > attackStart.x + 25 {
+                if facingRight != nil && facingRight == true {
+                    user.xScale = abs(user.xScale) * 1.0
+                } else {
+                    user.texture = SKTexture(imageNamed: "mage")
+                }
+                facingLeft = false
+                facingRight = true
+            } else if position.x < attackStart.x - 25 {
+                if facingRight != nil && facingRight == true {
+                    user.xScale = abs(user.xScale) * -1.0
+                } else {
+                    user.texture = SKTexture(imageNamed: "mageRight")
+                }
             }
             
         }
@@ -396,7 +411,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         for t in touches { self.touchUp(atPoint: t.location(in: self))
             let dx = attackStart.x - t.location(in: self).x
             let dy = attackStart.y - t.location(in: self).y
-            if dx > 100 || dx < -100 || dy > 100 || dy < -100 {
+            print("updating..")
+            if dx > 50 || dx < -50 || dy > 50 || dy < -50 {
                 Fire(dx: dx, dy: dy)
             } else {
                 if !jump {
@@ -441,17 +457,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             cam?.position.x -= 3.5
             one.position.x -= 3.5
             two.position.x -= 3.5
-            one.color = .green
         } else if ((user.position.x > two.position.x) && (userRight == true)) {
             //sky.position.x += 3.5
             //mtn1?.position.x += 3.3
             cam?.position.x += 3.5
             one.position.x += 3.5
             two.position.x += 3.5
-            two.color = .green
-        } else if one.color == .green || two.color == .green {
-            one.color = .red
-            two.color = .red
         }
     }
     
@@ -477,9 +488,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 self.addChild(tempNode)
             }
         }
-        
     }
-    
     
     override func update(_ currentTime: TimeInterval) {
         // Called before each frame is rendered
