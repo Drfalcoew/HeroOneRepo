@@ -17,9 +17,7 @@ struct BitMasks {
     static let enemy : UInt32 = 0x1 << 2
     static let fire : UInt32 = 0x1 << 3
     static let lady : UInt32 = 0x1 << 4
-    static let lady_node_0 : UInt32 = 0x1 << 5
-    static let lady_node_1 : UInt32 = 0x1 << 6
-    
+    static let brute_node : UInt32 = 0x1 << 5
 }
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
@@ -28,6 +26,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var floor : SKSpriteNode!
     var goblin : SKSpriteNode!
     var lady : SKSpriteNode!
+    var brute_0 : SKSpriteNode!
+    var brute_1 : SKSpriteNode!
     
     var mtn0 : SKSpriteNode!
     var mtn1 : SKSpriteNode!
@@ -37,9 +37,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var sun : SKSpriteNode!
     
     var helpNode : SKSpriteNode!
-    var ladyNode_0 : SKNode!
-    var ladyNode_1 : SKNode!
-    var by_lady : Bool = false
+    var brute_node : SKSpriteNode!
+    var brute_cam = false
     
     var one : SKSpriteNode!
     var two : SKSpriteNode!
@@ -63,16 +62,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var cam: SKCameraNode?
     var facingLeft: Bool?
     var facingRight: Bool?
-
-    var helpView : HelpChatBox = {
-        let x = HelpChatBox()
-        x.layer.masksToBounds = true
-        x.layer.isHidden = true
-        x.alpha = 0
-        return x
+ 
+    
+    lazy var showMenu : ShowMenu = {
+        let showMenu = ShowMenu()
+        //showMenu.viewController = self
+        return showMenu
     }()
-    
-    
+
     
     lazy var backgroundMusic : AVAudioPlayer? = {
         guard let url = Bundle.main.url(forResource: "bgMusic", withExtension: "mp3") else {
@@ -102,9 +99,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         fog1 = childNode(withName: "fog1") as? SKSpriteNode
         goblin = childNode(withName: "goblin") as? SKSpriteNode
         lady = childNode(withName: "lady") as? SKSpriteNode
-        ladyNode_0 = childNode(withName: "lady_node_0")
-        ladyNode_1 = childNode(withName: "lady_node_1")
         helpNode = childNode(withName: "help") as? SKSpriteNode
+        brute_0 = childNode(withName: "brute_0") as? SKSpriteNode
+        brute_1 = childNode(withName: "brute_1") as? SKSpriteNode
+        brute_node = childNode(withName: "brute_node") as? SKSpriteNode
         
         
         one = SKSpriteNode(color: .clear, size: CGSize(width: 50, height: 50))
@@ -125,7 +123,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         self.addChild(one)
         self.addChild(two)
-        
         
         
         SetupStart()
@@ -155,24 +152,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                                             }])))
         
         helpNode.run(SKAction.repeatForever(SKAction.sequence([SKAction.moveBy(x: -50, y: 0, duration: 1.0), SKAction.moveBy(x: 50, y: 0, duration: 1.0)])))
+        
     }
     
     func SetupStart() {
         let _ = Timer.scheduledTimer(timeInterval: 5.0, target: self, selector: #selector(sunAnimation), userInfo: nil, repeats: false)
         backgroundMusic?.play()
         
-        setupViews()
         SetupWeaponType()
         SetupPhysicsBodies()
         createGround()
     }
-    
-    func setupViews() {
-        self.view?.addSubview(helpView)
-        
-        self.helpView.frame = helpNode.frame
-        
-    }
+       
     
     
     @objc func sunAnimation() {
@@ -219,6 +210,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func SetupPhysicsBodies() {
+        brute_node.physicsBody = SKPhysicsBody(rectangleOf: brute_node.size)
+        brute_node.physicsBody?.categoryBitMask = BitMasks.brute_node
+        brute_node.physicsBody?.contactTestBitMask = BitMasks.user
+        
+        
         goblin.physicsBody = SKPhysicsBody(rectangleOf: goblin.size)
         goblin.physicsBody?.isDynamic = true
         goblin.physicsBody?.allowsRotation = false
@@ -226,21 +222,25 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         goblin.physicsBody?.contactTestBitMask = BitMasks.user
         goblin.physicsBody?.collisionBitMask = BitMasks.floor
         
+        brute_1.physicsBody = SKPhysicsBody(rectangleOf: brute_1.size)
+        brute_1.physicsBody?.isDynamic = true
+        brute_1.physicsBody?.allowsRotation = false
+        brute_1.physicsBody?.categoryBitMask = BitMasks.enemy
+        brute_1.physicsBody?.contactTestBitMask = BitMasks.user
+        brute_1.physicsBody?.collisionBitMask = BitMasks.floor
+        
+        brute_0.physicsBody = SKPhysicsBody(rectangleOf: brute_0.size)
+        brute_0.physicsBody?.isDynamic = true
+        brute_0.physicsBody?.allowsRotation = false
+        brute_0.physicsBody?.categoryBitMask = BitMasks.enemy
+        brute_0.physicsBody?.contactTestBitMask = BitMasks.user
+        brute_0.physicsBody?.collisionBitMask = BitMasks.floor
+        
         lady.physicsBody = SKPhysicsBody(rectangleOf: lady.size)
         lady.physicsBody?.isDynamic = true
         lady.physicsBody?.allowsRotation = false
         lady.physicsBody?.categoryBitMask = BitMasks.lady
         lady.physicsBody?.collisionBitMask = BitMasks.floor
-        
-        ladyNode_0.physicsBody = SKPhysicsBody(rectangleOf: ladyNode_0.frame.size)
-        ladyNode_0.physicsBody?.isDynamic = true
-        ladyNode_0.physicsBody?.categoryBitMask = BitMasks.lady_node_0
-        ladyNode_0.physicsBody?.collisionBitMask = BitMasks.user
-                
-        ladyNode_1.physicsBody = SKPhysicsBody(rectangleOf: ladyNode_1.frame.size)
-        ladyNode_1.physicsBody?.isDynamic = true
-        ladyNode_1.physicsBody?.categoryBitMask = BitMasks.lady_node_1
-        ladyNode_1.physicsBody?.collisionBitMask = BitMasks.user
                 
         floor = SKSpriteNode(imageNamed: "floor")
         floor.physicsBody?.isDynamic = true
@@ -275,6 +275,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         fireball.physicsBody?.density = 1.0
         
     }
+    
+    
     func didBegin(_ contact: SKPhysicsContact) {
         var firstBody: SKPhysicsBody
         var secondBody: SKPhysicsBody
@@ -324,36 +326,27 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                     self.SetupEnemies()
                 })
             })
-            
-        } else if firstBody.categoryBitMask == BitMasks.user && secondBody.categoryBitMask == BitMasks.lady_node_0 {
-            reset_lady_help()
-            
-            
-        } else if firstBody.categoryBitMask == BitMasks.user && secondBody.categoryBitMask == BitMasks.lady_node_1 {
-            reset_lady_help()
- 
+        } else if firstBody.categoryBitMask == BitMasks.user && secondBody.categoryBitMask == BitMasks.brute_node {
+            if brute_cam == false {
+                NotificationCenter.default.post(name: NSNotification.Name(rawValue: "disable_movement"), object: nil)
+
+                cam?.run(SKAction.move(by: CGVector(dx: (self.view?.frame.width)!, dy: 0), duration: 1.5), completion: { [self] in
+                    one.position = CGPoint(x: scene!.frame.width / -5.5, y: scene!.frame.height / 4)
+                    two.position = CGPoint(x: scene!.frame.width / 5.5, y: scene!.frame.height / 4)
+                    // goblin chat box
+                    goblin_chat()
+                })                
+                brute_cam = true
+            }
         }
     }
   
-    
-    func reset_lady_help() {
-        if by_lady {
-            by_lady = false
-            help_chat(false)
-        } else {
-            by_lady = true
-            help_chat(true)
-        }
+        
+    func goblin_chat() {
+        
+        NotificationCenter.default.post(name: NSNotification.Name(rawValue: "disable_movement"), object: nil)
     }
-            
-    func help_chat(_ chat: Bool) {
-        if chat {
-            
-        } else {
-            
-        }
-    }
-    
+   
     
     func touchDown(atPoint pos : CGPoint) {
         
@@ -460,14 +453,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             let position = t.location(in: self)
             attackStart = position
             
-            let touchedNode = atPoint(position)
-            print(touchedNode)
-            if touchedNode.name == "help_label"  {
-                self.helpView.helpButtonPressed(sender: helpView.helpButton)
-                self.lady.removeAllActions()
-                self.helpNode.removeAllActions()
-                
-            }
+            
         }
     }
     
@@ -494,13 +480,50 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
     
+    func updateLadyDirection() {
+        self.lady.removeAllActions()
+        self.helpNode.removeAllActions()
+        
+        
+        
+        let diff = self.user.position.x - self.lady.position.x
+        if diff > 0 { // lady on the left of user
+            print(self.lady.xScale)
+            if (self.lady.xScale > 0) {
+                lady.xScale = abs(lady.xScale) * -1.0
+            }
+            self.helpNode.run(SKAction.moveTo(x: self.user.position.x - 100, duration: 2.0))
+            self.lady.run(SKAction.moveTo(x: self.user.position.x - 100, duration: 2.0))
+        } else { // lady on the right of user
+            print(self.lady.xScale) // 0.10 ( looking left )
+            if (self.lady.xScale < 0) {
+                lady.xScale = abs(lady.xScale) * 1.0
+            }
+            self.helpNode.run(SKAction.moveTo(x: self.user.position.x + 100, duration: 2.0))
+            self.lady.run(SKAction.moveTo(x: self.user.position.x + 100, duration: 2.0))
+        }
+        
+        self.helpNode.run(SKAction.fadeOut(withDuration: 0.5)) {
+            self.helpNode.removeFromParent()
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.8) {
+            self.showMenu.Settings()
+        }
+    }
+    
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         for t in touches { self.touchUp(atPoint: t.location(in: self))
+            let loc = t.location(in: self)
+
             let dx = attackStart.x - t.location(in: self).x
             let dy = attackStart.y - t.location(in: self).y
-            print("updating..")
             if dx > 50 || dx < -50 || dy > 50 || dy < -50 {
                 Fire(dx: dx, dy: dy)
+            } else if atPoint(loc).name == "help" || atPoint(loc).name == "help_label" {
+                // DON'T JUMP
+                updateLadyDirection()
+                
             } else {
                 if !jump {
                     Jump()
@@ -535,6 +558,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             self.fog.position.x = 0.0
         })]))))
 
+    }
+    
+    func pause_user(_ seconds: Double) {
+        
     }
     
     func UpdateCamera() {

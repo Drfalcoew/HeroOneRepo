@@ -43,6 +43,10 @@ class GameViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        NotificationCenter.default.addObserver(self, selector: #selector(disable_movement), name: NSNotification.Name(rawValue: "disable_movement"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(enable_movement), name: NSNotification.Name(rawValue: "enable_movement"), object: nil)
+
+        
         if let view = self.view as! SKView? {
             // Load the SKScene from 'GameScene.sks'
             if let scene = SKScene(fileNamed: "GameScene") {
@@ -63,6 +67,26 @@ class GameViewController: UIViewController {
             view.showsNodeCount = true
             
             SetupConstraints()
+        }
+    }
+    
+    @objc func disable_movement() {
+        leftBtn.isEnabled = false
+        rightBtn.isEnabled = false
+        
+        UIView.animate(withDuration: 0.5) {
+            self.leftBtn.alpha = 0
+            self.rightBtn.alpha = 0
+        }
+    }
+    
+    @objc func enable_movement() {
+        leftBtn.isEnabled = false
+        rightBtn.isEnabled = false
+        
+        UIView.animate(withDuration: 0.5) {
+            self.leftBtn.alpha = 1
+            self.rightBtn.alpha = 1
         }
     }
 

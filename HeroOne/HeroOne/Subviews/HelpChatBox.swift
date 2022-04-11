@@ -17,31 +17,30 @@ class HelpChatBox: UIView {
     
     let txtView : UITextView = {
         let view = UITextView()
-        view.translatesAutoresizingMaskIntoConstraints = false
         view.layer.masksToBounds = true
         view.textAlignment = .center
-        view.isHidden = true
         view.isEditable = false
+        view.layer.zPosition = 1
         return view
     }()
     
     let helpButton : UIButton = {
         let btn = UIButton()
-        btn.translatesAutoresizingMaskIntoConstraints = false
         btn.layer.masksToBounds = true
         btn.addTarget(self, action: #selector(helpButtonPressed), for: .touchUpInside)
         btn.tag = 0
+        
         return btn
     }()
     
     let helpLabel : UILabel = {
         let lbl = UILabel()
-        lbl.translatesAutoresizingMaskIntoConstraints = false
         lbl.layer.masksToBounds = true
         lbl.numberOfLines = 1
         lbl.adjustsFontSizeToFitWidth = true
         lbl.minimumScaleFactor = 0.2
         lbl.text = "Help!"
+        lbl.layer.zPosition = 2
         return lbl
     }()
     
@@ -49,9 +48,16 @@ class HelpChatBox: UIView {
         super.init(frame: frame)
         
         self.layer.cornerRadius = 12
-        self.backgroundColor = .white
+        self.backgroundColor = .blue
         
         setupViews()
+        setupConstraints()
+    }
+    
+    func setupConstraints() {
+        helpButton.frame = self.frame
+        txtView.frame = self.frame
+        helpLabel.frame = self.frame
     }
     
     func setupViews() {
@@ -61,7 +67,8 @@ class HelpChatBox: UIView {
     }
     
     @objc func helpButtonPressed(sender: UIButton) {
-        
+        print(sender.tag)
+        print("BTN pressed")
         switch tag {
         case 0:
             sender.tag += 1

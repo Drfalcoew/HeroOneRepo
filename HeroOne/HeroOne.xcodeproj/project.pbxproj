@@ -17,8 +17,9 @@
 		347C9E57217072CD00469660 /* HeroOneTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 347C9E56217072CD00469660 /* HeroOneTests.swift */; };
 		347C9E62217072CD00469660 /* HeroOneUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 347C9E61217072CD00469660 /* HeroOneUITests.swift */; };
 		347C9E712170756400469660 /* MainScreenViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 347C9E702170756400469660 /* MainScreenViewController.swift */; };
+		4C4DDF6E28037C8900A3D23B /* MenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C4DDF6D28037C8900A3D23B /* MenuView.swift */; };
+		4C4DDF762803A4CF00A3D23B /* NPCHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C4DDF752803A4CF00A3D23B /* NPCHeaderView.swift */; };
 		4CBEAA1D27DB052000623680 /* bgMusic.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 4CBEAA1C27DB052000623680 /* bgMusic.mp3 */; };
-		4CD7E40E2802162D00896201 /* HelpChatBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CD7E40D2802162D00896201 /* HelpChatBox.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -55,8 +56,9 @@
 		347C9E61217072CD00469660 /* HeroOneUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeroOneUITests.swift; sourceTree = "<group>"; };
 		347C9E63217072CD00469660 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		347C9E702170756400469660 /* MainScreenViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainScreenViewController.swift; sourceTree = "<group>"; };
+		4C4DDF6D28037C8900A3D23B /* MenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuView.swift; sourceTree = "<group>"; };
+		4C4DDF752803A4CF00A3D23B /* NPCHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NPCHeaderView.swift; sourceTree = "<group>"; };
 		4CBEAA1C27DB052000623680 /* bgMusic.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; name = bgMusic.mp3; path = "../../../../../../../Music/Music/Media/Music/Unknown Artist/Unknown Album/bgMusic.mp3"; sourceTree = "<group>"; };
-		4CD7E40D2802162D00896201 /* HelpChatBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpChatBox.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -159,7 +161,8 @@
 		4CD7E401280212FA00896201 /* Subviews */ = {
 			isa = PBXGroup;
 			children = (
-				4CD7E40D2802162D00896201 /* HelpChatBox.swift */,
+				4C4DDF6D28037C8900A3D23B /* MenuView.swift */,
+				4C4DDF752803A4CF00A3D23B /* NPCHeaderView.swift */,
 			);
 			path = Subviews;
 			sourceTree = "<group>";
@@ -297,8 +300,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4CD7E40E2802162D00896201 /* HelpChatBox.swift in Sources */,
 				347C9E42217072C700469660 /* GameScene.swift in Sources */,
+				4C4DDF762803A4CF00A3D23B /* NPCHeaderView.swift in Sources */,
+				4C4DDF6E28037C8900A3D23B /* MenuView.swift in Sources */,
 				347C9E712170756400469660 /* MainScreenViewController.swift in Sources */,
 				347C9E44217072C700469660 /* GameViewController.swift in Sources */,
 				347C9E3C217072C700469660 /* AppDelegate.swift in Sources */,
