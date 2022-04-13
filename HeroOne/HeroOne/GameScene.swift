@@ -54,6 +54,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     //var fireballAtlas = SKTextureAtlas(named: "Fireball")
     //var fireballArray = [SKTexture]()
     
+    var enemyAtlas = SKTextureAtlas(named: "brute_attack")
+    var enemyArray = [SKTexture]()
+    
     var userAtlas = SKTextureAtlas(named: "mageWalk")
     var userArray = [SKTexture]()
     
@@ -78,7 +81,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         do {
             let player = try AVAudioPlayer(contentsOf: url)
             player.numberOfLoops = -1
-            print("Playing song")
             return player
         } catch {
             print("Error")
@@ -109,8 +111,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         two = SKSpriteNode(color: .clear, size: CGSize(width: 50, height: 50))
 
         
-        one.position = CGPoint(x: scene!.frame.width / -5.5, y: scene!.frame.height / 4)
-        two.position = CGPoint(x: scene!.frame.width / 5.5, y: scene!.frame.height / 4)
+        one.position = CGPoint(x: scene!.frame.width / -7.5, y: scene!.frame.height / 4)
+        two.position = CGPoint(x: scene!.frame.width / 7.5, y: scene!.frame.height / 4)
         
         
         self.physicsWorld.contactDelegate = self
@@ -124,7 +126,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.addChild(one)
         self.addChild(two)
         
-        
         SetupStart()
         SetupEnemies()
         SetupLady()
@@ -135,12 +136,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
 
     func SetupEnemies() {
+        goblin.name = "5"
         goblin.run(SKAction.repeatForever(SKAction.sequence([SKAction.moveBy(x: -200, y: 0, duration: 4.0), SKAction.run {
                 self.goblin.texture = SKTexture(imageNamed: "goblinRight")
             }, SKAction.moveBy(x: 200, y: 0, duration: 4.0), SKAction.run {
                 self.goblin.texture = SKTexture(imageNamed: "goblin")
             }])))
     }
+  
     
     func SetupLady() {
         lady.run(SKAction.repeatForever(SKAction.sequence(
@@ -157,7 +160,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func SetupStart() {
         let _ = Timer.scheduledTimer(timeInterval: 5.0, target: self, selector: #selector(sunAnimation), userInfo: nil, repeats: false)
-        backgroundMusic?.play()
+        //backgroundMusic?.play() music
         
         SetupWeaponType()
         SetupPhysicsBodies()
@@ -167,8 +170,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     
     @objc func sunAnimation() {
-        print("IN SUN ANIMATION FUNC")
-        
         sun.run(SKAction.move(by: CGVector(dx: 0, dy: (view?.frame.height)! / -4 * 3), duration: 10.0), withKey: "sun")
         sun.run(SKAction.move(by: CGVector(dx: 0, dy: -200), duration: 10.0)) {
             self.sun.run(SKAction.fadeOut(withDuration: 5.0), completion: {
@@ -180,7 +181,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func SetupBackground() {
         moveClouds()
     }
-    
+        
     
     
     func SetupNotifications() {
@@ -191,7 +192,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func SetupWeaponType() {
         let fireballTexture = SKTexture(imageNamed: "fireball")
-        fireball = SKSpriteNode(texture: fireballTexture, size: CGSize(width: user.size.height * 0.45, height: user.size.height * 0.45))
+        fireball = SKSpriteNode(texture: fireballTexture, size: CGSize(width: user.size.height * 0.75, height: user.size.height * 0.4875))
     }
     
     func SetupAnimations() {
@@ -202,6 +203,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         for i in 0...userAtlas.textureNames.count - 1 {
             let name = "mage_\(i).png"
             userArray.append(SKTexture(imageNamed: name))
+        }
+        
+        for i in 0...enemyAtlas.textureNames.count - 1 {
+            let name = "brute_with_sword_\(i)"
+            enemyArray.append(SKTexture(imageNamed: name))
         }
     }
     
@@ -241,7 +247,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         lady.physicsBody?.allowsRotation = false
         lady.physicsBody?.categoryBitMask = BitMasks.lady
         lady.physicsBody?.collisionBitMask = BitMasks.floor
-                
+        
         floor = SKSpriteNode(imageNamed: "floor")
         floor.physicsBody?.isDynamic = true
         floor.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: (self.scene?.size.width)!, height: self.frame.size.height / 3 - floor.frame.size.height * 0.07))
@@ -272,8 +278,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         fireball.physicsBody?.collisionBitMask = 0
         fireball.physicsBody?.categoryBitMask = BitMasks.fire
         fireball.physicsBody?.contactTestBitMask = BitMasks.enemy | BitMasks.floor
-        fireball.physicsBody?.density = 1.0
-        
+        fireball.physicsBody?.density = 3.0
     }
     
     
@@ -307,7 +312,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             } else if userLeft {
                 runUser(leftRight: false)
             } else {
-                print("Reset texture to normal")
                 user.texture = SKTexture(imageNamed: "mage")
             }
             
@@ -315,24 +319,39 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             a = firstBody.node as? SKSpriteNode
             b = secondBody.node as? SKSpriteNode
             
-            b?.run(SKAction.fadeOut(withDuration: 0.1), completion: {
-                b?.removeFromParent()
-            })
-            a?.removeAllActions()
-            a?.run(SKAction.fadeOut(withDuration: 0.5), completion: {
-                a?.position = CGPoint(x: (self.view?.frame.width)! / 2, y: (self.view?.frame.height)!)
-                a?.physicsBody?.velocity = CGVector(dx: 0, dy: 0)
-                a?.run(SKAction.fadeIn(withDuration: 0.5), completion: {
-                    self.SetupEnemies()
+            let name = goblin.name!
+            let x = Int(name)
+            if x == 1 {
+                goblin.name = "5"
+            
+            
+                b?.run(SKAction.fadeOut(withDuration: 0.1), completion: {
+                    b?.removeFromParent()
                 })
-            })
+                a?.removeAllActions()
+                a?.run(SKAction.fadeOut(withDuration: 0.5), completion: {
+                    a?.position = CGPoint(x: (self.view?.frame.width)! / 2, y: (self.view?.frame.height)!)
+                    a?.physicsBody?.velocity = CGVector(dx: 0, dy: 0)
+                    a?.run(SKAction.fadeIn(withDuration: 0.5), completion: {
+                        self.SetupEnemies()
+                    })
+                })
+                    
+            } else {
+                goblin.name = "\(x!-1)"
+                a?.run(SKAction.applyImpulse(CGVector(dx: 10, dy: 10), at: CGPoint(x: 0.5, y: 0.5), duration: 2.0))
+                
+                a?.run(SKAction.sequence([SKAction.fadeOut(withDuration: 0.25), SKAction.fadeIn(withDuration: 0.25)]))
+                
+            }
         } else if firstBody.categoryBitMask == BitMasks.user && secondBody.categoryBitMask == BitMasks.brute_node {
             if brute_cam == false {
                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "disable_movement"), object: nil)
+                stopUser()
 
                 cam?.run(SKAction.move(by: CGVector(dx: (self.view?.frame.width)!, dy: 0), duration: 1.5), completion: { [self] in
-                    one.position = CGPoint(x: scene!.frame.width / -5.5, y: scene!.frame.height / 4)
-                    two.position = CGPoint(x: scene!.frame.width / 5.5, y: scene!.frame.height / 4)
+                    one.run(SKAction.move(by: CGVector(dx: (self.view?.frame.width)!, dy: 0), duration: 0.1))
+                    two.run(SKAction.move(by: CGVector(dx: (self.view?.frame.width)!, dy: 0), duration: 0.1))
                     // goblin chat box
                     goblin_chat()
                 })                
@@ -343,8 +362,32 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
   
         
     func goblin_chat() {
+        // enable movement after continue chat.
+        //self.showMenu.Settings(character: "brute")
         
-        NotificationCenter.default.post(name: NSNotification.Name(rawValue: "disable_movement"), object: nil)
+        NotificationCenter.default.post(name: NSNotification.Name(rawValue: "enable_movement"), object: nil)
+        
+        brute_0.xScale = abs(brute_0.xScale) * 1.0
+        
+        
+
+        let duration = TimeInterval(Int.max) //want the action to run infinitely
+        
+        let followPlayer = SKAction.customAction(withDuration: duration) { (node, time) in
+            var dx = self.user.position.x - self.brute_0.position.x
+            
+            if dx < 0 {
+                dx -= 300
+            } else {
+                dx += 300
+            }
+            
+            let angle = atan2(dx,0)
+            node.position.x += sin(angle) * 0.7
+        }
+        
+        brute_0.run(followPlayer)
+
     }
    
     
@@ -368,7 +411,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     @objc func updateUserLeft() {
-        print("Updating user Left")
         userLeft = true
         facingLeft = true
         //user.texture = SKTexture(imageNamed: "mage")
@@ -381,7 +423,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     @objc func updateUserRight() {
-        print("Updating user Right")
         userRight = true
         facingRight = true
         //user.texture = SKTexture(imageNamed: "mageRight")
@@ -401,6 +442,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func Fire(dx : CGFloat, dy : CGFloat) {
+        
+        let angle = atan2(dx,dy)
         
         var newX = dx
         var newY = dy
@@ -422,16 +465,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
            self.addChild(tempNode!)
            tempNode?.run(SKAction.fadeIn(withDuration: 0.25))
            
-           if dx > 0 {
-               tempNode.physicsBody?.applyAngularImpulse(dy / -20000)
+           if angle > 0 {
+               tempNode.physicsBody?.applyAngularImpulse(angle / -200)
            } else {
                
                tempNode.xScale = -1
-               tempNode.physicsBody?.applyAngularImpulse(dy / 20000)
+               tempNode.physicsBody?.applyAngularImpulse(angle / 200)
            }
-           tempNode.physicsBody?.applyImpulse(CGVector(dx: newX, dy: newY))
+           tempNode.physicsBody?.applyImpulse(CGVector(dx: dx, dy: dy))
            attack = false
         }
+        
+        
+        user.run(SKAction.animate(with: userArray, timePerFrame: 0.1), withKey: "userFire")
+
     }
     
     
@@ -488,14 +535,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         let diff = self.user.position.x - self.lady.position.x
         if diff > 0 { // lady on the left of user
-            print(self.lady.xScale)
             if (self.lady.xScale > 0) {
                 lady.xScale = abs(lady.xScale) * -1.0
             }
             self.helpNode.run(SKAction.moveTo(x: self.user.position.x - 100, duration: 2.0))
             self.lady.run(SKAction.moveTo(x: self.user.position.x - 100, duration: 2.0))
         } else { // lady on the right of user
-            print(self.lady.xScale) // 0.10 ( looking left )
             if (self.lady.xScale < 0) {
                 lady.xScale = abs(lady.xScale) * 1.0
             }
@@ -507,8 +552,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             self.helpNode.removeFromParent()
         }
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.8) {
-            self.showMenu.Settings()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) {
+            self.showMenu.Settings(character: "lady")
         }
     }
     

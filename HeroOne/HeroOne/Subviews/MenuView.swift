@@ -10,13 +10,18 @@ import UIKit
 
 class ShowMenu: NSObject, UIGestureRecognizerDelegate {
     
-    let titleText : [String] = ["Please help me, traveler!", "The goblins are on their way to burn down my village!", "Will you help me, please?"]
+    let characters : [String: [String]] = ["lady" : ["Please help me, traveler!", "The goblins are on their way to burn down my village!", "Will you help me, please?"],
+                      "brute" : ["Grub zum gomlok füz roklogm!", "Roklothe der zug zug brahzulk.", "ARGH, chehk barg!!"]]
+    
+    let character_lines : [String : Int] = ["lady": 3, "brute": 3]
+    
+    var selected_char : String?
     
     let blackView = UIView()
     var tap : UITapGestureRecognizer?
     
     let npc_label = NPCHeaderView()
-    
+    var tag = 0
     
     let menuView : UIView = {
         let view = UIView()
@@ -54,7 +59,9 @@ class ShowMenu: NSObject, UIGestureRecognizerDelegate {
         return lbl
     }()
     
-    @objc func Settings() {
+    @objc func Settings(character char: String) {
+        
+        self.selected_char = char
         
         if let window = UIApplication.shared.keyWindow {
             blackView.backgroundColor = .black
@@ -66,6 +73,7 @@ class ShowMenu: NSObject, UIGestureRecognizerDelegate {
             menuView.addSubview(tap_to_continue)
             
             setupConstraints()
+            setupViews(char: char)
             
             let x = window.frame.width / -2.5
             let y = UIApplication.shared.statusBarFrame.height
@@ -73,8 +81,9 @@ class ShowMenu: NSObject, UIGestureRecognizerDelegate {
             self.menuView.frame = CGRect(x: x - 5, y: y, width: window.frame.width / 2.5, height: window.frame.height)
             
             self.menuView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(continueText)))
+            
             self.blackView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(dismissSettings)))
-        
+            
             
             UIView.animate(withDuration: 0.35, delay: 0.01, options: .curveEaseOut, animations: {
                 self.blackView.alpha = 0.5
@@ -86,14 +95,32 @@ class ShowMenu: NSObject, UIGestureRecognizerDelegate {
         }
     }
     
+    func setupViews(char : String){
+        npc_label.npc_icon.image = UIImage(named: "\(char)_icon")
+        if char == "lady" {
+            npc_label.npc_label.text = "Villager"
+            return
+        }
+        npc_label.npc_label.text = char
+    }
+    
+    
     @objc func continueText(){
+        guard let char = self.selected_char else { dismissSettings(); return }
+        guard let num_lines = character_lines[char] else { dismissSettings(); return}
+        guard let _lines = characters[char] else { dismissSettings(); return}
+        
+        self.title.text = ""
+                
         switch title.tag {
-        case 0..<3:
-            title.setTextWithTypeAnimation(typedText: titleText[title.tag])
+        case 0..<num_lines:
+            title.setTextWithTypeAnimation(typedText: _lines[title.tag])
             title.tag += 1
             break
         default:
             dismissSettings()
+            title.tag = 0
+            selected_char = nil
         }
     }
     
@@ -112,35 +139,14 @@ class ShowMenu: NSObject, UIGestureRecognizerDelegate {
         }
     }
     
+        
+    
     override init() {
         super.init()
         
-        tap = UITapGestureRecognizer(target: self, action: #selector(settingsHandler))
-     
-        tap?.delegate = self
         
         menuView.addSubview(title)
         
-    }
-    
-    
-    @objc func settingsHandler() {
-        
-        
-        if let window = UIApplication.shared.keyWindow {
-            let x = window.frame.width / -2.5
-            let y = UIApplication.shared.statusBarFrame.height
-            
-            UIView.animate(withDuration: 0.25, delay: 0.0, options: .curveEaseIn, animations: {
-                self.blackView.alpha = 0.0
-                self.menuView.alpha = 0.0
-                self.menuView.frame = CGRect(x: x, y: y, width: window.frame.width / 2.5, height: window.frame.height)
-            }) { (completed: Bool) in
-                self.menuView.removeFromSuperview()
-                self.blackView.removeFromSuperview()
-                
-            }
-        }
     }
     
     func setupConstraints() {
@@ -169,10 +175,11 @@ class ShowMenu: NSObject, UIGestureRecognizerDelegate {
 
 
 extension UILabel {
-    func setTextWithTypeAnimation(typedText: String, characterDelay: TimeInterval = 5.0) {
+    func setTextWithTypeAnimation(typedText: String, characterDelay: TimeInterval = 3.5) {
         text = ""
         var writingTask: DispatchWorkItem?
         writingTask = DispatchWorkItem { [weak weakSelf = self] in
+            
             for character in typedText {
                 DispatchQueue.main.async {
                     weakSelf?.text!.append(character)

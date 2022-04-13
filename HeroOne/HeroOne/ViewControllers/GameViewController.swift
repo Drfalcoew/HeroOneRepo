@@ -81,8 +81,8 @@ class GameViewController: UIViewController {
     }
     
     @objc func enable_movement() {
-        leftBtn.isEnabled = false
-        rightBtn.isEnabled = false
+        leftBtn.isEnabled = true
+        rightBtn.isEnabled = true
         
         UIView.animate(withDuration: 0.5) {
             self.leftBtn.alpha = 1
